@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>日本信用卡優惠</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fdf6ee;
+    --pink: #f5b8c8;
+    --pink-dark: #e8849a;
+    --mint: #b8e8d8;
+    --mint-dark: #5abf9a;
+    --yellow: #fce97a;
+    --lavender: #d4c8f0;
+    --brown: #7a4f3a;
+    --text: #3d2b1f;
+    --muted: #a07060;
+    --border: #ead8c8;
+    --surface: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, #e8d5c4 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px 48px;
+  }
+
+  /* ── Header ── */
+  .header { text-align: center; padding: 20px 0 18px; }
+  .header h1 {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 22px; font-weight: 900; color: var(--brown);
+  }
+  .header-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Filter ── */
+  .filter-bar {
+    display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 8px;
+  }
+  .filter-btn {
+    padding: 6px 14px; border-radius: 99px;
+    font-size: 12px; font-weight: 700;
+    border: 1.5px solid var(--border); background: white;
+    color: var(--text); cursor: pointer;
+    white-space: nowrap; transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .filter-btn:hover { border-color: var(--pink-dark); }
+  .filter-btn.active { background: var(--pink-dark); color: white; border-color: var(--pink-dark); }
+
+  /* ── Card ── */
+  .card-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .card-item {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 14px;
+    border: 2px solid var(--border);
+    box-shadow: 0 2px 8px rgba(100,60,40,0.06);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .card-item:hover { border-color: var(--pink-dark); transform: translateY(-2px); }
+
+  .card-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .card-rank {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--pink); color: white;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-weight: 900; font-size: 14px;
+  }
+
+  .card-name {
+    flex: 1;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 14px; font-weight: 900; color: var(--brown);
+  }
+
+  .card-badge {
+    display: inline-block;
+    font-size: 9px; font-weight: 700;
+    padding: 3px 8px; border-radius: 6px;
+    background: var(--yellow); color: #7a6020;
+  }
+
+  .card-issuer { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .card-rewards {
+    font-size: 12px; line-height: 1.6;
+    margin: 10px 0;
+    padding: 10px;
+    background: #f5ede4; border-radius: 8px;
+    border-left: 3px solid var(--pink);
+  }
+
+  .reward-title { font-weight: 700; color: var(--brown); margin-bottom: 4px; }
+  .reward-detail { color: var(--text); font-size: 11px; }
+
+  .card-usage {
+    font-size: 11px; color: var(--text);
+    padding: 8px; background: #f0fff8; border-radius: 8px;
+    border-left: 3px solid var(--mint);
+  }
+
+  .usage-label { font-weight: 700; color: var(--mint-dark); }
+
+  .card-verdict {
+    margin-top: 10px; padding: 8px;
+    background: #fffbee; border-radius: 8px;
+    border-left: 3px solid var(--yellow);
+    font-size: 11px; color: #7a6020; line-height: 1.6;
+  }
+
+  .verdict-icon { font-size: 12px; margin-right: 4px; }
+
+  /* ── Tips ── */
+  .tips-card {
+    background: #fef3c7; border: 2px solid var(--yellow);
+    border-radius: 12px; padding: 12px 14px;
+    margin-bottom: 16px;
+  }
+  .tips-title { font-family: 'Zen Maru Gothic', sans-serif; font-size: 12px; font-weight: 900; color: #7a6020; margin-bottom: 6px; }
+  .tips-text { font-size: 11px; color: #7a6020; line-height: 1.6; }
+
+  /* ── Empty ── */
+  .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 32px 0; }
+  .empty-icon { font-size: 36px; margin-bottom: 8px; }
+
+  /* ── Scrollbar ── */
+  .filter-bar::-webkit-scrollbar { height: 4px; }
+  .filter-bar::-webkit-scrollbar-track { background: transparent; }
+  .filter-bar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>💳 台灣信用卡優惠</h1>
+    <div class="header-sub">Top 10 信用卡・日本旅遊回饋一覽</div>
+  </div>
+
+  <!-- Tips -->
+  <div class="tips-card">
+    <div class="tips-title">💡 日本旅遊小撇步</div>
+    <div class="tips-text">
+      • 無腦刷：日本消費 1.5% 以上回饋的信用卡<br>
+      • 外幣手續費：通常 1.5% 起跳，優化選擇省錢<br>
+      • 機場免稅店：搭配銀聯通路享額外優惠<br>
+      • 海外刷卡保險：常見於高端卡，出國必看
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterCards('all')">全部</button>
+    <button class="filter-btn" onclick="filterCards('nomind')">無腦刷</button>
+    <button class="filter-btn" onclick="filterCards('travel')">日本旅遊</button>
+    <button class="filter-btn" onclick="filterCards('pay')">支付優惠</button>
+  </div>
+
+  <!-- Cards List -->
+  <div class="card-list" id="cardList"></div>
+
+</div>
+
+<script>
+  const cardsData = [
+    {
+      rank: 1,
+      name: '聯邦吉鶴卡',
+      issuer: '聯邦銀行',
+      baseReward: '2.5%',
+      rewards: '• 日幣消費 2.5% 無上限\n• 綁 Apple Pay 日本使用加碼 1.5%（有上限）\n• 7-11、LAWSON、迪士尼等加碼最高 3%\n• 新戶再加碼 3%（上限 600 元）',
+      usage: '無腦刷：日幣無上限 2.5% 回饋',
+      verdict: '🌟 2025/4~12 活動期間，日本回饋最強',
+      tags: ['nomind', 'travel']
+    },
+    {
+      rank: 2,
+      name: '星展 eco 永續卡',
+      issuer: '星展銀行',
+      baseReward: '1.0%',
+      rewards: '• 日本實體店消費原 1% 回饋\n• 指定地區加碼 4%（上限 600 現金積點）\n• 完成任務加碼 2.5%（上限 300 積點/月）\n• 可達最高 7.5% 回饋（至 2026/3/31）',
+      usage: '旅遊：日本實體消費多重加碼',
+      verdict: '✈️ 到 5/31 有效，加碼最豐',
+      tags: ['travel', 'pay']
+    },
+    {
+      rank: 3,
+      name: '富邦 J 卡',
+      issuer: '富邦銀行',
+      baseReward: '3.0%',
+      rewards: '• 日韓泰實體店消費最高 6% 回饋\n• 綁 LINE Pay 條碼再享 12% 加碼\n• 累積消費滿 1,000 日圓享伴手禮兌換\n• 活動期間：2025/4/1 ~ 2026/3/31',
+      usage: '日本旅遊：實體店刷卡多倍回',
+      verdict: '🎁 伴手禮活動加持，長期優惠',
+      tags: ['travel', 'pay']
+    },
+    {
+      rank: 4,
+      name: '玉山熊本熊卡',
+      issuer: '玉山銀行',
+      baseReward: '1.0%',
+      rewards: '• 日本消費最高 8.5% 回饋\n• 免 1.5% 國外交易服務費\n• 指定商店優惠加倍\n• 玉山 e point 累積可兌換',
+      usage: '日本專刷：免外幣手續費省成本',
+      verdict: '💎 免國外手續費超划算，隱藏版神卡',
+      tags: ['nomind', 'travel']
+    },
+    {
+      rank: 5,
+      name: '台新 Richart（原 FlyGo）',
+      issuer: '台新銀行',
+      baseReward: '3.3%',
+      rewards: '• 海外消費 3.3% 無上限（線上、實體）\n• 訂房平台加碼享優惠\n• 航空公司消費 3.3% 回饋\n• 無年費、無消費門檻',
+      usage: '無腦刷：全通路海外都有 3.3%',
+      verdict: '🌍 一卡走天下，日本旅遊好用',
+      tags: ['nomind', 'travel', 'pay']
+    }
+  ];
+
+  let currentFilter = 'all';
+
+  function filterCards(tag) {
+    currentFilter = tag;
+    // 更新按鈕狀態
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    renderCards();
+  }
+
+  function renderCards() {
+    const container = document.getElementById('cardList');
+    let filtered = cardsData;
+
+    if (currentFilter !== 'all') {
+      filtered = cardsData.filter(card => card.tags.includes(currentFilter));
+    }
+
+    if (!filtered.length) {
+      container.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div>沒有符合的信用卡</div>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(card => `
+      <div class="card-item">
+        <div class="card-header">
+          <div class="card-rank">#${card.rank}</div>
+          <div>
+            <div class="card-name">${card.name}</div>
+            <div class="card-issuer">${card.issuer}</div>
+          </div>
+          <div class="card-badge">${card.baseReward}回饋</div>
+        </div>
+
+        <div class="card-rewards">
+          <div class="reward-title">💎 回饋詳情</div>
+          <div class="reward-detail">${card.rewards.split('\n').join('<br>')}</div>
+        </div>
+
+        <div class="card-usage">
+          <span class="usage-label">📌 使用情境：</span><br>
+          ${card.usage}
+        </div>
+
+        <div class="card-verdict">
+          ${card.verdict}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Init
+  renderCards();
+</script>
+</body>
+</html>

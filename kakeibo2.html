@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>日本家計簿</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #fdf6ee;
+      --pink: #f5b8c8;
+      --pink-dark: #e8849a;
+      --brown: #7a4f3a;
+      --border: #ead8c8;
+      --white: #fff;
+      --shadow: rgba(122, 79, 58, 0.08);
+      --green: #7bbf6a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--cream);
+      font-family: 'Noto Sans TC', sans-serif;
+      color: var(--brown);
+      min-height: 100dvh;
+      padding-bottom: 40px;
+    }
+
+    /* ── 頁首 ── */
+    header {
+      background: var(--white);
+      border-bottom: 2px solid var(--border);
+      padding: 14px 18px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header .logo {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--pink-dark);
+      letter-spacing: 0.04em;
+    }
+    header .logo span { color: var(--brown); font-size: 13px; margin-left: 6px; font-weight: 400; }
+
+    /* ── 卡片 ── */
+    .card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin: 14px 14px 0;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .card-title {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--pink-dark);
+      margin-bottom: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── 表單 ── */
+    .row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .row:last-child { margin-bottom: 0; }
+
+    label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--brown);
+      opacity: 0.7;
+      display: block;
+      margin-bottom: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--cream);
+      font-family: 'Noto Sans TC', sans-serif;
+      font-size: 15px;
+      color: var(--brown);
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      transition: border-color 0.18s;
+    }
+    input:focus, select:focus { border-color: var(--pink-dark); }
+
+    /* 日期 */
+    .date-group { display: flex; gap: 6px; align-items: flex-end; }
+    .date-sep { font-size: 18px; color: var(--pink-dark); padding-bottom: 8px; font-weight: 700; }
+    .date-m input { width: 60px; text-align: center; }
+    .date-d input { width: 60px; text-align: center; }
+
+    /* JPY 累加器 */
+    .jpy-row { display: flex; gap: 6px; }
+    .jpy-row input { flex: 1; }
+    .add-btn {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      border: none;
+      background: var(--pink-dark);
+      color: #fff;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      line-height: 1;
+    }
+    .add-btn:active { background: var(--brown); transform: scale(0.95); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+      min-height: 0;
+    }
+    .chip {
+      background: var(--pink);
+      color: var(--brown);
+      border-radius: 20px;
+      padding: 4px 10px 4px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .chip:active { background: var(--pink-dark); color: #fff; }
+    .chip .x { font-size: 15px; opacity: 0.6; }
+
+    .subtotal {
+      font-size: 12px;
+      color: var(--pink-dark);
+      margin-top: 6px;
+      font-weight: 500;
+      min-height: 18px;
+    }
+
+    /* 類別格子 */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .cat-btn {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--cream);
+      color: var(--brown);
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 4px 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .cat-btn .btn-icon { font-size: 18px; line-height: 1; }
+    .cat-btn .btn-label { font-size: 12px; }
+    .cat-btn.active {
+      background: var(--pink-dark);
+      border-color: var(--pink-dark);
+      color: #fff;
+    }
+
+    /* 付款 */
+    .pay-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+    .pay-btn {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--cream);
+      color: var(--brown);
+      font-family: 'Noto Sans TC', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 8px 6px 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .pay-btn .btn-icon { font-size: 18px; line-height: 1; }
+    .pay-btn .btn-label { font-size: 11px; }
+    .pay-btn.active {
+      background: var(--pink-dark);
+      border-color: var(--pink-dark);
+      color: #fff;
+    }
+
+    /* 送出按鈕 */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      background: var(--pink-dark);
+      color: #fff;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .submit-btn:active { background: var(--brown); transform: scale(0.98); }
+    .submit-btn:disabled { opacity: 0.5; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--brown);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 20px;
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 999;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── 紀錄列表 ── */
+    .list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .list-total {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--pink-dark);
+    }
+    .list-total small { font-size: 11px; font-weight: 400; color: var(--brown); opacity: 0.6; margin-right: 2px; }
+
+    .record-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      animation: fadeIn 0.25s ease;
+    }
+    .record-item:last-child { border-bottom: none; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    .rec-date {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--brown);
+      opacity: 0.55;
+      min-width: 34px;
+      text-align: center;
+    }
+    .rec-cat {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--pink);
+      color: var(--brown);
+      border-radius: 8px;
+      padding: 2px 7px;
+      white-space: nowrap;
+    }
+    .rec-name {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .rec-amounts {
+      text-align: right;
+      min-width: 62px;
+    }
+    .rec-jpy {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--brown);
+    }
+    .rec-twd {
+      font-size: 10px;
+      color: var(--brown);
+      opacity: 0.45;
+    }
+    .del-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--cream);
+      color: var(--pink-dark);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .del-btn:active { background: var(--pink-dark); color: #fff; border-color: var(--pink-dark); }
+
+    .loading-msg { text-align: center; font-size: 13px; color: var(--brown); opacity: 0.45; padding: 18px 0; }
+
+    /* Select 箭頭 */
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--pink-dark);
+      pointer-events: none;
+      font-size: 14px;
+    }
+    .select-wrap select { padding-right: 28px; }
+
+    /* 分隔 */
+    .field-group { margin-bottom: 10px; }
+    .field-group:last-child { margin-bottom: 0; }
+
+    /* ── 分頁 Tab ── */
+    .tabs {
+      display: flex;
+      background: var(--white);
+      border-bottom: 2px solid var(--border);
+      position: sticky;
+      top: 52px;
+      z-index: 99;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 11px 0;
+      border: none;
+      background: none;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--brown);
+      opacity: 0.4;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: opacity 0.15s, border-color 0.15s;
+      letter-spacing: 0.04em;
+    }
+    .tab-btn.active {
+      opacity: 1;
+      border-bottom-color: var(--pink-dark);
+      color: var(--pink-dark);
+    }
+
+    /* ── 頁面區塊 ── */
+    .page { display: none; padding-bottom: 40px; }
+    .page.active { display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🇯🇵 家計簿<span>Japan Trip</span></div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('form')">✏️ 記帳</button>
+  <button class="tab-btn" onclick="switchTab('list')">📋 紀錄</button>
+</div>
+
+<!-- ── 記帳表單頁 ── -->
+<div class="page active" id="page-form">
+<div class="card">
+  <div class="card-title">✏️ 新增支出</div>
+
+  <!-- 日期 -->
+  <div class="field-group">
+    <label>日期</label>
+    <div class="date-group">
+      <div class="date-m"><input type="number" id="inputMonth" min="1" max="12" placeholder="月" /></div>
+      <div class="date-sep">/</div>
+      <div class="date-d"><input type="number" id="inputDay" min="1" max="31" placeholder="日" /></div>
+    </div>
+  </div>
+
+  <!-- 品項名稱 -->
+  <div class="field-group">
+    <label>品項名稱</label>
+    <input type="text" id="inputName" placeholder="例：藥妝店、便利商店…" />
+  </div>
+
+  <!-- JPY 金額 -->
+  <div class="field-group">
+    <label>金額（¥ 日圓）</label>
+    <div class="jpy-row">
+      <input type="number" id="inputJpy" placeholder="輸入金額" inputmode="numeric" />
+      <button class="add-btn" onclick="addChip()" title="＋">＋</button>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="subtotal" id="subtotal"></div>
+  </div>
+
+  <!-- 類別 -->
+  <div class="field-group">
+    <label>類別</label>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+
+  <!-- 付款工具 -->
+  <div class="field-group">
+    <label>付款工具</label>
+    <div class="pay-grid" id="payGrid"></div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submitRecord()">記帳 ✓</button>
+</div>
+</div><!-- end page-form -->
+
+<!-- ── 紀錄列表頁 ── -->
+<div class="page" id="page-list">
+<div class="card">
+  <div class="list-header">
+    <div class="card-title" style="margin-bottom:0">消費紀錄</div>
+    <div class="list-total" id="listTotal"></div>
+  </div>
+  <div id="recordList"><div class="loading-msg">讀取中…</div></div>
+</div>
+</div><!-- end page-list -->
+
+<div id="toast"></div>
+
+<script>
+// ── 分頁切換 ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && tab === 'form') || (i === 1 && tab === 'list'));
+  });
+  document.getElementById('page-form').classList.toggle('active', tab === 'form');
+  document.getElementById('page-list').classList.toggle('active', tab === 'list');
+  if (tab === 'list') loadRecords();
+}
+
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwiDBMaW_iEgPia8GKpU5-j8mgEW474uQjmdD9LsemX0ezZRCqJWZ-p69HY3e1ZWC-k/exec';
+
+const CATEGORIES = [
+  { key: '餐', icon: '🍜' },
+  { key: '玩', icon: '🎡' },
+  { key: '交', icon: '🚃' },
+  { key: '雜', icon: '🛍️' },
+  { key: '紀', icon: '🎁' },
+  { key: '住', icon: '🏨' },
+  { key: '藥', icon: '💊' },
+];
+const PAYMENTS = [
+  { key: 'SUICA',        icon: '🐧' },
+  { key: '吉鶴卡',       icon: '💳' },
+  { key: 'LINE(DAWAY)',  icon: '💚' },
+  { key: '現金',         icon: '💴' },
+  { key: '街口(UBEAR)',  icon: '🐻' },
+  { key: '全支付(PayPay)', icon: '🔴' },
+  { key: 'GoGo',        icon: '🟡' },
+  { key: 'CUBE',        icon: '🟦' },
+];
+
+let selectedCat = '';
+let selectedPay = '';
+let jpyParts = [];
+
+// ── 初始化 ──
+function init() {
+  // 預設今天
+  const now = new Date();
+  document.getElementById('inputMonth').value = now.getMonth() + 1;
+  document.getElementById('inputDay').value = now.getDate();
+
+  // 類別格子
+  const catGrid = document.getElementById('catGrid');
+  CATEGORIES.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn';
+    btn.innerHTML = `<span class="btn-icon">${c.icon}</span><span class="btn-label">${c.key}</span>`;
+    btn.onclick = () => selectCat(c.key);
+    btn.dataset.key = c.key;
+    catGrid.appendChild(btn);
+  });
+
+  // 付款格子
+  const payGrid = document.getElementById('payGrid');
+  PAYMENTS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'pay-btn';
+    btn.innerHTML = `<span class="btn-icon">${p.icon}</span><span class="btn-label">${p.key}</span>`;
+    btn.onclick = () => selectPay(p.key);
+    btn.dataset.key = p.key;
+    payGrid.appendChild(btn);
+  });
+
+  loadRecords();
+}
+
+function selectCat(c) {
+  selectedCat = c;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.key === c));
+}
+function selectPay(p) {
+  selectedPay = p;
+  document.querySelectorAll('.pay-btn').forEach(b => b.classList.toggle('active', b.dataset.key === p));
+}
+
+// ── JPY 累加器 ──
+function addChip() {
+  const input = document.getElementById('inputJpy');
+  const val = parseInt(input.value);
+  if (!val || val <= 0) return;
+  jpyParts.push(val);
+  input.value = '';
+  renderChips();
+  input.focus();
+}
+
+function removeChip(i) {
+  jpyParts.splice(i, 1);
+  renderChips();
+}
+
+function renderChips() {
+  const container = document.getElementById('chips');
+  const subtotal = document.getElementById('subtotal');
+  container.innerHTML = '';
+  jpyParts.forEach((v, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.innerHTML = `¥${v.toLocaleString()} <span class="x">×</span>`;
+    chip.onclick = () => removeChip(i);
+    container.appendChild(chip);
+  });
+  if (jpyParts.length > 0) {
+    const sum = jpyParts.reduce((a, b) => a + b, 0);
+    subtotal.textContent = `小計：¥${sum.toLocaleString()}`;
+  } else {
+    subtotal.textContent = '';
+  }
+}
+
+// ── 送出 ──
+async function submitRecord() {
+  const month = document.getElementById('inputMonth').value;
+  const day = document.getElementById('inputDay').value;
+  const name = document.getElementById('inputName').value.trim();
+  const extraJpy = parseInt(document.getElementById('inputJpy').value) || 0;
+
+  const totalJpy = jpyParts.reduce((a, b) => a + b, 0) + extraJpy;
+
+  if (!month || !day) return showToast('請輸入日期');
+  if (!name) return showToast('請輸入品項名稱');
+  if (totalJpy <= 0) return showToast('請輸入金額');
+  if (!selectedCat) return showToast('請選擇類別');
+  if (!selectedPay) return showToast('請選擇付款工具');
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '送出中…';
+
+  const params = new URLSearchParams({
+    action: 'write',
+    date: `${month}/${day}`,
+    chinese: name,
+    jpy: totalJpy,
+    category: selectedCat,
+    payment: selectedPay,
+  });
+
+  try {
+    await fetch(`${GAS_URL}?${params}`);
+    // 清空
+    document.getElementById('inputName').value = '';
+    document.getElementById('inputJpy').value = '';
+    jpyParts = [];
+    renderChips();
+    showToast('✓ 記帳成功！');
+    switchTab('list');
+  } catch (e) {
+    showToast('❌ 送出失敗，請重試');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '記帳 ✓';
+}
+
+// ── 讀取紀錄 ──
+async function loadRecords() {
+  const list = document.getElementById('recordList');
+  list.innerHTML = '<div class="loading-msg">讀取中…</div>';
+  try {
+    const res = await fetch(GAS_URL);
+    const json = await res.json();
+    if (!json.success) throw new Error();
+    renderRecords(json.data || []);
+  } catch {
+    list.innerHTML = '<div class="loading-msg">無法讀取資料</div>';
+  }
+}
+
+function renderRecords(data) {
+  const list = document.getElementById('recordList');
+  const totalEl = document.getElementById('listTotal');
+
+  if (!data.length) {
+    list.innerHTML = '<div class="loading-msg">尚無紀錄</div>';
+    totalEl.innerHTML = '';
+    return;
+  }
+
+  // 反轉（最新在上）
+  const reversed = [...data].reverse();
+
+  const totalJpy = data.reduce((s, r) => s + (Number(r.jpy) || 0), 0);
+  const totalTwd = Math.round(totalJpy * 0.2);
+  totalEl.innerHTML = `<small>合計</small>¥${totalJpy.toLocaleString()} <small style="font-size:10px;opacity:.5">≈ NT$${totalTwd.toLocaleString()}</small>`;
+
+  list.innerHTML = '';
+  reversed.forEach(r => {
+    const jpy = Number(r.jpy) || 0;
+    const twd = Math.round(jpy * 0.2);
+
+    // 日期格式化
+    let dateStr = r.date;
+    try {
+      const d = new Date(r.date);
+      if (!isNaN(d)) dateStr = `${d.getMonth()+1}/${d.getDate()}`;
+    } catch {}
+
+    const item = document.createElement('div');
+    item.className = 'record-item';
+    item.innerHTML = `
+      <div class="rec-date">${dateStr}</div>
+      <div class="rec-cat">${r.category || ''}</div>
+      <div class="rec-name">${r.chinese || ''}</div>
+      <div class="rec-amounts">
+        <div class="rec-jpy">¥${jpy.toLocaleString()}</div>
+        <div class="rec-twd">NT$${twd.toLocaleString()}</div>
+      </div>
+      <button class="del-btn" onclick="deleteRecord(${r.row})" title="刪除">✕</button>
+    `;
+    list.appendChild(item);
+  });
+}
+
+// ── 刪除 ──
+async function deleteRecord(row) {
+  if (!confirm('確定刪除這筆紀錄？')) return;
+  try {
+    await fetch(`${GAS_URL}?action=delete&row=${row}`);
+    showToast('已刪除');
+    loadRecords();
+  } catch {
+    showToast('❌ 刪除失敗');
+  }
+}
+
+// ── Toast ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// Enter 鍵加 chip
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+  document.getElementById('inputJpy').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addChip();
+  });
+});
+</script>
+</body>
+</html>

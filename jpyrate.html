@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>日幣換算 & 購物車</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fdf6ee;
+    --pink: #f5b8c8;
+    --pink-dark: #e8849a;
+    --mint: #b8e8d8;
+    --mint-dark: #5abf9a;
+    --yellow: #fce97a;
+    --lavender: #d4c8f0;
+    --brown: #7a4f3a;
+    --text: #3d2b1f;
+    --muted: #a07060;
+    --border: #ead8c8;
+    --surface: #ffffff;
+    --red: #f87171;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, #e8d5c4 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+
+  .header { text-align: center; padding: 20px 0 18px; }
+  .header h1 {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 22px; font-weight: 900; color: var(--brown);
+  }
+  .header-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .card {
+    background: var(--surface);
+    border-radius: 18px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 3px 12px rgba(100,60,40,0.08);
+    border: 2px solid var(--border);
+  }
+
+  .card-title {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 13px; font-weight: 900; color: var(--brown);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ── 匯率顯示 ── */
+  .rate-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #fef9ee; border-radius: 10px; padding: 10px 14px;
+    margin-bottom: 14px; border: 1.5px solid var(--yellow);
+  }
+  .rate-label { font-size: 11px; color: var(--muted); font-weight: 700; }
+  .rate-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px; font-weight: 700; color: var(--brown);
+  }
+  .rate-time { font-size: 10px; color: var(--muted); }
+  .rate-refresh {
+    padding: 5px 10px; border-radius: 8px;
+    border: 1.5px solid var(--mint); background: white;
+    font-size: 11px; color: var(--mint-dark); cursor: pointer;
+    font-weight: 700; transition: all 0.15s;
+  }
+  .rate-refresh:hover { background: var(--mint); color: white; }
+  .rate-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── 輸入 ── */
+  .input-row {
+    display: flex; gap: 10px; align-items: stretch;
+    margin-bottom: 10px;
+  }
+  .input-group { flex: 1; position: relative; }
+  .input-group label {
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    display: block; margin-bottom: 4px; letter-spacing: 0.5px;
+  }
+  .input-group input {
+    width: 100%; padding: 12px 14px;
+    border: 1.5px solid var(--border); border-radius: 12px;
+    font-size: 18px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--cream); color: var(--brown);
+    outline: none; transition: border-color 0.15s;
+  }
+  .input-group input:focus { border-color: var(--pink-dark); }
+  .input-group input[readonly] {
+    background: #f0fff8; border-color: var(--mint);
+    color: var(--mint-dark);
+  }
+  .input-flag {
+    position: absolute; right: 10px; bottom: 12px;
+    font-size: 18px;
+  }
+
+  .arrow-mid {
+    display: flex; align-items: flex-end; padding-bottom: 12px;
+    font-size: 20px; color: var(--pink-dark);
+  }
+
+  /* ── 加入購物車按鈕 ── */
+  .cart-btn {
+    width: 100%; padding: 12px;
+    background: var(--pink-dark); color: white;
+    border: none; border-radius: 12px;
+    font-size: 14px; font-weight: 700;
+    font-family: 'Noto Sans TC', sans-serif;
+    cursor: pointer; transition: opacity 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 10px;
+  }
+  .cart-btn:hover { opacity: 0.88; }
+  .cart-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(60,30,20,0.35);
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: 20px 20px 0 0;
+    padding: 20px 18px 36px; width: 100%; max-width: 480px;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-title {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 16px; font-weight: 900; color: var(--brown);
+    margin-bottom: 16px; text-align: center;
+  }
+  .modal-field { margin-bottom: 12px; }
+  .modal-field label {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    display: block; margin-bottom: 4px;
+  }
+  .modal-field input[type="text"] {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--border); border-radius: 10px;
+    font-size: 14px; font-family: 'Noto Sans TC', sans-serif;
+    background: var(--cream); color: var(--text);
+    outline: none; transition: border-color 0.15s;
+  }
+  .modal-field input[type="text"]:focus { border-color: var(--pink-dark); }
+
+  .qty-row {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .qty-slider {
+    flex: 1; -webkit-appearance: none; appearance: none;
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, var(--pink-dark) 0%, var(--border) 0%);
+    outline: none;
+  }
+  .qty-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--pink-dark); cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .qty-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px; font-weight: 700; color: var(--brown);
+    min-width: 40px; text-align: center;
+  }
+
+  .modal-price-preview {
+    background: #f9f3ff; border-radius: 10px; padding: 10px 14px;
+    margin-bottom: 14px; border: 1.5px solid var(--lavender);
+    font-size: 13px; color: var(--brown); line-height: 1.8;
+    text-align: center;
+  }
+
+  .modal-btns { display: flex; gap: 10px; }
+  .modal-cancel {
+    flex: 1; padding: 12px;
+    border: 2px solid var(--border); background: white;
+    border-radius: 12px; font-size: 14px; font-weight: 700;
+    color: var(--muted); cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.15s;
+  }
+  .modal-cancel:hover { border-color: var(--pink); color: var(--pink-dark); }
+  .modal-confirm {
+    flex: 2; padding: 12px;
+    background: var(--mint-dark); color: white;
+    border: none; border-radius: 12px;
+    font-size: 14px; font-weight: 700;
+    font-family: 'Noto Sans TC', sans-serif;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .modal-confirm:hover { opacity: 0.88; }
+
+  /* ── 購物清單 ── */
+  .list-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .clear-all-btn {
+    padding: 5px 12px; border-radius: 8px;
+    border: 1.5px solid var(--red);
+    background: white; color: var(--red);
+    font-size: 11px; font-weight: 700;
+    cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.15s;
+  }
+  .clear-all-btn:hover { background: var(--red); color: white; }
+
+  .cart-item {
+    background: var(--surface); border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 8px;
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+    animation: slideIn 0.2s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .cart-item-info { flex: 1; }
+  .cart-item-name {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 14px; font-weight: 700; color: var(--brown);
+    margin-bottom: 2px;
+  }
+  .cart-item-qty {
+    font-size: 11px; color: var(--muted);
+  }
+  .cart-item-price {
+    text-align: right;
+  }
+  .cart-item-jpy {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; font-weight: 700; color: var(--brown);
+  }
+  .cart-item-twd {
+    font-size: 10px; color: var(--muted); margin-top: 2px;
+  }
+  .cart-del-btn {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1.5px solid var(--pink);
+    background: white; color: var(--pink-dark);
+    font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .cart-del-btn:hover { background: var(--pink-dark); color: white; border-color: var(--pink-dark); }
+
+  .empty-cart {
+    text-align: center; color: var(--muted);
+    font-size: 13px; padding: 24px 0;
+  }
+  .empty-icon { font-size: 32px; margin-bottom: 6px; }
+
+  /* ── 加總 ── */
+  .summary-card {
+    background: var(--surface);
+    border-radius: 18px; padding: 16px 18px;
+    margin-top: 14px;
+    border: 2px solid var(--mint);
+    box-shadow: 0 3px 12px rgba(100,60,40,0.08);
+  }
+  .summary-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; border-bottom: 1px dashed var(--border);
+    font-size: 13px;
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .label { color: var(--muted); font-weight: 600; }
+  .summary-row .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; color: var(--brown);
+  }
+  .summary-row.total .label { font-size: 14px; font-weight: 900; color: var(--brown); }
+  .summary-row.total .value { font-size: 16px; color: var(--pink-dark); }
+  .summary-row.tax { background: #f0fff8; border-radius: 6px; padding: 6px 8px; margin-top: 4px; }
+  .summary-row.tax .label { color: var(--mint-dark); }
+  .summary-row.tax .value { color: var(--mint-dark); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>🛒 日幣換算 & 購物車</h1>
+    <div class="header-sub">即時匯率・自動換算・退稅計算</div>
+  </div>
+
+  <!-- 匯率卡 -->
+  <div class="card">
+    <div class="card-title">💱 即時日幣匯率</div>
+    <div class="rate-bar">
+      <div>
+        <div class="rate-label">1 JPY =</div>
+        <div class="rate-value" id="rateDisplay">載入中...</div>
+        <div class="rate-time" id="rateTime"></div>
+      </div>
+      <button class="rate-refresh" id="refreshBtn" onclick="fetchRate()">🔄 更新</button>
+    </div>
+
+    <!-- 換算 -->
+    <div class="input-row">
+      <div class="input-group">
+        <label>輸入日幣 JPY</label>
+        <input type="number" id="jpyInput" placeholder="0" inputmode="numeric" oninput="calcTWD()">
+        <span class="input-flag">🇯🇵</span>
+      </div>
+      <div class="arrow-mid">→</div>
+      <div class="input-group">
+        <label>等值台幣 TWD</label>
+        <input type="number" id="twdOutput" placeholder="0" readonly>
+        <span class="input-flag">🇹🇼</span>
+      </div>
+    </div>
+
+    <button class="cart-btn" id="addCartBtn" onclick="openModal()" disabled>
+      🛍️ 加入購物車
+    </button>
+  </div>
+
+  <!-- 購物清單 -->
+  <div class="card">
+    <div class="list-header">
+      <div class="card-title" style="margin-bottom:0">🗒️ 待購清單</div>
+      <button class="clear-all-btn" onclick="clearAll()">🗑️ 全部清除</button>
+    </div>
+    <div id="cartList"></div>
+  </div>
+
+  <!-- 加總 -->
+  <div class="summary-card" id="summaryCard">
+    <div class="summary-row">
+      <span class="label">商品項目</span>
+      <span class="value" id="sumItems">0 項</span>
+    </div>
+    <div class="summary-row total">
+      <span class="label">💴 合計（JPY）</span>
+      <span class="value" id="sumJpy">¥0</span>
+    </div>
+    <div class="summary-row total">
+      <span class="label">💵 合計（TWD）</span>
+      <span class="value" id="sumTwd">NT$0</span>
+    </div>
+    <div class="summary-row tax">
+      <span class="label">🧾 退稅 8% 後實付（TWD）</span>
+      <span class="value" id="sumTax8">NT$0</span>
+    </div>
+    <div class="summary-row tax">
+      <span class="label">🧾 退稅 10% 後實付（TWD）</span>
+      <span class="value" id="sumTax10">NT$0</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title">🛍️ 加入購物車</div>
+
+    <div class="modal-field">
+      <label>項目名稱</label>
+      <input type="text" id="modalItemName" placeholder="例：ASICS 球鞋、DHC 藍莓...">
+    </div>
+
+    <div class="modal-field">
+      <label>數量：<span id="qtyVal">1</span> 個</label>
+      <div class="qty-row">
+        <input type="range" class="qty-slider" id="qtySlider" min="1" max="20" value="1" oninput="updateQty()">
+        <div class="qty-display" id="qtyDisplay">1</div>
+      </div>
+    </div>
+
+    <div class="modal-price-preview" id="modalPreview">
+      ¥0 × 1 個 = ¥0<br>
+      ≈ NT$0
+    </div>
+
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">取消</button>
+      <button class="modal-confirm" onclick="addToCart()">✅ 加入</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const CART_KEY = 'jpy_cart_v1';
+  const RATE_KEY = 'jpy_rate_v1';
+  let cart = [];
+  let currentRate = 0;
+  let pendingJpy = 0;
+
+  // ── 初始化 ──
+  function init() {
+    const saved = localStorage.getItem(CART_KEY);
+    if (saved) cart = JSON.parse(saved);
+
+    const savedRate = localStorage.getItem(RATE_KEY);
+    if (savedRate) {
+      const r = JSON.parse(savedRate);
+      currentRate = r.rate;
+      document.getElementById('rateDisplay').textContent = `NT$ ${r.rate.toFixed(4)}`;
+      document.getElementById('rateTime').textContent = `更新：${r.time}`;
+    }
+
+    fetchRate();
+    renderCart();
+  }
+
+  // ── 取得即時匯率 ──
+  async function fetchRate() {
+    const btn = document.getElementById('refreshBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳';
+
+    // 三個備用來源，都是同一個資料庫的 CDN
+    const urls = [
+      'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/jpy.min.json',
+      'https://latest.currency-api.pages.dev/v1/currencies/jpy.min.json',
+      'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/jpy.json',
+    ];
+
+    let success = false;
+    for (const url of urls) {
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const rate = data.jpy?.twd;
+        if (!rate) continue;
+
+        currentRate = rate;
+        const now = new Date().toLocaleString('zh-TW', { hour12: false });
+        document.getElementById('rateDisplay').textContent = `NT$ ${rate.toFixed(4)}`;
+        document.getElementById('rateTime').textContent = `更新：${now}`;
+        localStorage.setItem(RATE_KEY, JSON.stringify({ rate, time: now }));
+        calcTWD();
+        success = true;
+        break;
+      } catch (e) {
+        continue;
+      }
+    }
+
+    if (!success && !currentRate) {
+      document.getElementById('rateDisplay').textContent = '載入失敗，請重試';
+    }
+
+    btn.disabled = false;
+    btn.textContent = '🔄 更新';
+  }
+
+  // ── 計算台幣 ──
+  function calcTWD() {
+    const jpy = parseFloat(document.getElementById('jpyInput').value) || 0;
+    const twd = jpy * currentRate;
+    document.getElementById('twdOutput').value = twd > 0 ? Math.round(twd) : '';
+    document.getElementById('addCartBtn').disabled = jpy <= 0;
+    pendingJpy = jpy;
+    updateModalPreview();
+  }
+
+  // ── Modal ──
+  function openModal() {
+    document.getElementById('modalItemName').value = '';
+    document.getElementById('qtySlider').value = 1;
+    document.getElementById('qtyDisplay').textContent = 1;
+    document.getElementById('qtyVal').textContent = 1;
+    updateModalPreview();
+    document.getElementById('modalOverlay').classList.add('show');
+    setTimeout(() => document.getElementById('modalItemName').focus(), 300);
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('show');
+  }
+
+  function updateQty() {
+    const qty = parseInt(document.getElementById('qtySlider').value);
+    document.getElementById('qtyDisplay').textContent = qty;
+    document.getElementById('qtyVal').textContent = qty;
+
+    // 更新 slider 漸層
+    const slider = document.getElementById('qtySlider');
+    const pct = ((qty - 1) / 19) * 100;
+    slider.style.background = `linear-gradient(to right, var(--pink-dark) ${pct}%, var(--border) ${pct}%)`;
+
+    updateModalPreview();
+  }
+
+  function updateModalPreview() {
+    const qty = parseInt(document.getElementById('qtySlider')?.value || 1);
+    const totalJpy = pendingJpy * qty;
+    const totalTwd = Math.round(totalJpy * currentRate);
+    document.getElementById('modalPreview').innerHTML =
+      `¥${fmt(pendingJpy)} × ${qty} 個 = <strong>¥${fmt(totalJpy)}</strong><br>≈ <strong>NT$${fmt(totalTwd)}</strong>`;
+  }
+
+  function addToCart() {
+    const name = document.getElementById('modalItemName').value.trim() || '未命名商品';
+    const qty = parseInt(document.getElementById('qtySlider').value);
+    const unitJpy = pendingJpy;
+    const totalJpy = unitJpy * qty;
+    const totalTwd = Math.round(totalJpy * currentRate);
+
+    cart.unshift({
+      id: Date.now(),
+      name,
+      qty,
+      unitJpy,
+      totalJpy,
+      totalTwd
+    });
+
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    closeModal();
+    renderCart();
+
+    // 清空輸入
+    document.getElementById('jpyInput').value = '';
+    document.getElementById('twdOutput').value = '';
+    document.getElementById('addCartBtn').disabled = true;
+    pendingJpy = 0;
+  }
+
+  // ── 渲染清單 ──
+  function renderCart() {
+    const el = document.getElementById('cartList');
+
+    if (!cart.length) {
+      el.innerHTML = '<div class="empty-cart"><div class="empty-icon">🛒</div>清單是空的</div>';
+      updateSummary();
+      return;
+    }
+
+    el.innerHTML = cart.map((item, i) => `
+      <div class="cart-item">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-qty">¥${fmt(item.unitJpy)} × ${item.qty} 個</div>
+        </div>
+        <div class="cart-item-price">
+          <div class="cart-item-jpy">¥${fmt(item.totalJpy)}</div>
+          <div class="cart-item-twd">≈ NT$${fmt(item.totalTwd)}</div>
+        </div>
+        <button class="cart-del-btn" onclick="deleteItem(${i})">✕</button>
+      </div>
+    `).join('');
+
+    updateSummary();
+  }
+
+  function deleteItem(index) {
+    cart.splice(index, 1);
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    renderCart();
+  }
+
+  function clearAll() {
+    if (!cart.length) return;
+    cart = [];
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    renderCart();
+  }
+
+  function updateSummary() {
+    const totalItems = cart.length;
+    const totalJpy = cart.reduce((s, i) => s + i.totalJpy, 0);
+    const totalTwd = cart.reduce((s, i) => s + i.totalTwd, 0);
+    const afterTax8  = Math.round(totalTwd * (1 - 0.08));
+    const afterTax10 = Math.round(totalTwd * (1 - 0.10));
+
+    document.getElementById('sumItems').textContent = `${totalItems} 項`;
+    document.getElementById('sumJpy').textContent = `¥${fmt(totalJpy)}`;
+    document.getElementById('sumTwd').textContent = `NT$${fmt(totalTwd)}`;
+    document.getElementById('sumTax8').textContent = `NT$${fmt(afterTax8)}`;
+    document.getElementById('sumTax10').textContent = `NT$${fmt(afterTax10)}`;
+  }
+
+  function fmt(n) {
+    return Math.round(n).toLocaleString('zh-TW');
+  }
+
+  // 點 overlay 關閉 modal
+  document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  init();
+</script>
+</body>
+</html>

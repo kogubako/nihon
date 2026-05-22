@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🐾 我的日本工具箱</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink-dark: #e8849a;
+    --pink: #f5b8c8;
+    --cream: #fdf6ee;
+    --brown: #7a4f3a;
+    --tab-h: 62px;
+    --header-h: 52px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    font-family: 'Noto Sans TC', sans-serif;
+    background: #f0e8e0;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  .app-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--header-h);
+    background: var(--pink-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    box-shadow: 0 2px 12px rgba(100,40,40,0.2);
+  }
+
+  .app-title {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: 1px;
+  }
+
+  /* ── iframe ── */
+  .iframe-wrap {
+    position: fixed;
+    top: var(--header-h);
+    bottom: var(--tab-h);
+    left: 0; right: 0;
+  }
+
+  .iframe-wrap iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: none;
+    background: var(--cream);
+  }
+
+  .iframe-wrap iframe.active {
+    display: block;
+  }
+
+  /* ── Tab Bar ── */
+  .tab-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: var(--tab-h);
+    background: white;
+    border-top: 2px solid var(--pink);
+    display: flex;
+    z-index: 200;
+    box-shadow: 0 -3px 14px rgba(100,40,40,0.10);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #c0a090;
+    transition: color 0.15s;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .tab-btn .icon { font-size: 22px; line-height: 1; }
+  .tab-btn .label { font-size: 10px; font-weight: 700; font-family: 'Noto Sans TC', sans-serif; }
+
+  .tab-btn.active { color: var(--pink-dark); }
+
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 25%; right: 25%;
+    height: 3px;
+    background: var(--pink-dark);
+    border-radius: 0 0 4px 4px;
+  }
+
+  /* ── 更多選單 ── */
+  .more-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(60,30,20,0.3);
+  }
+  .more-overlay.show { display: block; }
+
+  .more-sheet {
+    position: absolute;
+    bottom: var(--tab-h);
+    left: 0; right: 0;
+    background: white;
+    border-radius: 20px 20px 0 0;
+    padding: 16px 16px 8px;
+    box-shadow: 0 -4px 24px rgba(100,40,40,0.15);
+    animation: sheetUp 0.22s ease;
+  }
+  @keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+
+  .more-sheet-title {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 12px; font-weight: 700; color: #c0a090;
+    text-align: center; margin-bottom: 14px;
+    letter-spacing: 2px;
+  }
+
+  .more-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .more-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 8px;
+    border-radius: 14px;
+    background: var(--cream);
+    border: 1.5px solid #ead8c8;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.15s;
+  }
+  .more-item:active { background: var(--pink); border-color: var(--pink-dark); }
+  .more-item .more-icon { font-size: 26px; line-height: 1; }
+  .more-item .more-label {
+    font-size: 10px; font-weight: 700;
+    color: var(--brown);
+    font-family: 'Noto Sans TC', sans-serif;
+    text-align: center;
+  }
+  .more-item.active-page {
+    background: #fde8f0;
+    border-color: var(--pink-dark);
+  }
+  .more-item.active-page .more-label { color: var(--pink-dark); }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="app-header">
+  <div class="app-title">🐾 日本工具箱</div>
+</header>
+
+<!-- iframes -->
+<div class="iframe-wrap">
+  <iframe id="frame-0" src="chiikawa-gw.html"></iframe>
+  <iframe id="frame-1" src="receipt.html"></iframe>
+  <iframe id="frame-2" src="product-check.html"></iframe>
+  <iframe id="frame-3" src="coupon.html"></iframe>
+  <iframe id="frame-4" src="anime-events.html"></iframe>
+  <iframe id="frame-5" src="creditcard.html"></iframe>
+  <iframe id="frame-6" src="jpyrate.html"></iframe>
+  <iframe id="frame-7" src="kakeibo2.html"></iframe>
+</div>
+
+<!-- Tab Bar（5個主要） -->
+<nav class="tab-bar">
+  <button class="tab-btn" data-idx="0" onclick="switchTab(0)">
+    <span class="icon">🛒</span>
+    <span class="label">吉伊卡哇</span>
+  </button>
+  <button class="tab-btn" data-idx="6" onclick="switchTab(6)">
+    <span class="icon">💱</span>
+    <span class="label">匯率</span>
+  </button>
+  <button class="tab-btn" data-idx="7" onclick="switchTab(7)">
+    <span class="icon">💴</span>
+    <span class="label">記帳</span>
+  </button>
+  <button class="tab-btn" data-idx="1" onclick="switchTab(1)">
+    <span class="icon">🧾</span>
+    <span class="label">發票掃描</span>
+  </button>
+  <button class="tab-btn" data-idx="more" onclick="toggleMore()">
+    <span class="icon">⋯</span>
+    <span class="label">更多</span>
+  </button>
+</nav>
+
+<!-- 更多選單 -->
+<div class="more-overlay" id="moreOverlay" onclick="closeMore()">
+  <div class="more-sheet" onclick="event.stopPropagation()">
+    <div class="more-sheet-title">更多工具</div>
+    <div class="more-grid">
+      <div class="more-item" data-idx="3" onclick="switchTabFromMore(3)">
+        <span class="more-icon">🎫</span>
+        <span class="more-label">優惠券</span>
+      </div>
+      <div class="more-item" data-idx="5" onclick="switchTabFromMore(5)">
+        <span class="more-icon">💳</span>
+        <span class="more-label">卡片優惠</span>
+      </div>
+      <div class="more-item" data-idx="4" onclick="switchTabFromMore(4)">
+        <span class="more-icon">🎌</span>
+        <span class="more-label">動漫活動</span>
+      </div>
+      <div class="more-item" data-idx="2" onclick="switchTabFromMore(2)">
+        <span class="more-icon">🔍</span>
+        <span class="more-label">查價</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const LAST_TAB_KEY = 'japan-toolbox-tab';
+  let current = parseInt(localStorage.getItem(LAST_TAB_KEY) || '0');
+
+  const frames = document.querySelectorAll('.iframe-wrap iframe');
+  const tabBtns = document.querySelectorAll('.tab-bar .tab-btn');
+
+  // 主要 tab 對應的 frame index
+  const mainTabs = [0, 6, 2, 1]; // 採購、匯率、查價、發票
+
+  function switchTab(idx) {
+    // 切換 iframe
+    frames.forEach((f, i) => f.classList.toggle('active', i === idx));
+
+    // 更新主 tab 按鈕狀態
+    tabBtns.forEach(btn => {
+      const btnIdx = btn.dataset.idx;
+      if (btnIdx === 'more') {
+        btn.classList.remove('active');
+      } else {
+        btn.classList.toggle('active', parseInt(btnIdx) === idx);
+      }
+    });
+
+    // 更新更多選單裡的狀態
+    document.querySelectorAll('.more-item').forEach(item => {
+      item.classList.toggle('active-page', parseInt(item.dataset.idx) === idx);
+    });
+
+    current = idx;
+    localStorage.setItem(LAST_TAB_KEY, idx);
+  }
+
+  function switchTabFromMore(idx) {
+    closeMore();
+    switchTab(idx);
+
+    // 更多按鈕保持 active 狀態（因為目前頁面是「更多」裡的）
+    tabBtns.forEach(btn => {
+      if (btn.dataset.idx === 'more') btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+  }
+
+  function toggleMore() {
+    const overlay = document.getElementById('moreOverlay');
+    overlay.classList.toggle('show');
+  }
+
+  function closeMore() {
+    document.getElementById('moreOverlay').classList.remove('show');
+  }
+
+  // 還原上次開的頁籤
+  if (mainTabs.includes(current)) {
+    switchTab(current);
+  } else {
+    switchTab(current);
+    // 更多裡面的頁面，更多按鈕 active
+    tabBtns.forEach(btn => {
+      if (btn.dataset.idx === 'more') btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>動漫活動 GW</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fdf6ee;
+    --pink: #f5b8c8;
+    --pink-dark: #e8849a;
+    --mint: #b8e8d8;
+    --mint-dark: #5abf9a;
+    --yellow: #fce97a;
+    --lavender: #d4c8f0;
+    --orange: #ffd4a8;
+    --orange-dark: #f5a040;
+    --sky: #c8e8f8;
+    --sky-dark: #4090c0;
+    --brown: #7a4f3a;
+    --text: #3d2b1f;
+    --muted: #a07060;
+    --border: #ead8c8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, #e8d5c4 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px 48px;
+  }
+
+  .header { text-align: center; padding: 20px 0 18px; }
+  .header h1 {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 22px; font-weight: 900; color: var(--brown);
+  }
+  .header-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Status badges ── */
+  .status-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    justify-content: center; margin-bottom: 20px;
+  }
+  .status-badge {
+    font-size: 11px; font-weight: 700;
+    padding: 4px 12px; border-radius: 99px;
+  }
+  .badge-gw    { background: #ff6b6b; color: white; }
+  .badge-on    { background: var(--mint-dark); color: white; }
+  .badge-ended { background: #e0d0c0; color: #7a6050; }
+
+  /* ── Category tabs ── */
+  .cat-tabs {
+    display: flex; gap: 8px; margin-bottom: 18px;
+    overflow-x: auto; padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .cat-tabs::-webkit-scrollbar { display: none; }
+
+  .cat-tab {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 99px;
+    border: 2px solid var(--border);
+    background: white;
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+    font-family: 'Noto Sans TC', sans-serif;
+    white-space: nowrap;
+  }
+  .cat-tab.active, .cat-tab:hover {
+    border-color: var(--pink-dark);
+    background: var(--pink-dark); color: white;
+  }
+
+  /* ── Section ── */
+  .section-title {
+    display: flex; align-items: center; gap: 10px;
+    margin: 18px 0 12px;
+  }
+  .section-title .icon { font-size: 20px; }
+  .section-title .label {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 15px; font-weight: 900; color: var(--brown);
+  }
+  .section-title .line {
+    flex: 1; height: 2px;
+    background: repeating-linear-gradient(to right, var(--pink) 0, var(--pink) 5px, transparent 5px, transparent 9px);
+  }
+
+  /* ── Event Card ── */
+  .event-card {
+    background: white;
+    border-radius: 18px;
+    margin-bottom: 10px;
+    border: 2px solid var(--border);
+    box-shadow: 0 3px 10px rgba(100,60,40,0.07);
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+    text-decoration: none;
+    display: block;
+    color: var(--text);
+  }
+  .event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(100,60,40,0.13);
+    border-color: var(--pink);
+  }
+  .event-card:active { transform: scale(0.98); }
+
+  .card-inner { display: flex; align-items: stretch; }
+
+  .card-accent { width: 6px; flex-shrink: 0; }
+  .a-frieren  { background: #7a60c0; }
+  .a-bluelock { background: #2060d0; }
+  .a-oshinoko { background: #e06090; }
+  .a-kisekoi  { background: #f0a030; }
+  .a-usj      { background: #c04040; }
+  .a-other    { background: var(--mint-dark); }
+
+  .card-content { flex: 1; padding: 13px 14px; min-width: 0; }
+
+  .card-top {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .card-series {
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    margin-bottom: 3px; letter-spacing: 0.5px;
+  }
+
+  .card-name {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 14px; font-weight: 900; color: var(--brown);
+    line-height: 1.35;
+  }
+
+  .card-arrow { font-size: 14px; color: var(--muted); flex-shrink: 0; margin-top: 2px; }
+
+  .card-period {
+    font-size: 11px; font-weight: 700;
+    margin: 5px 0 4px;
+  }
+  .period-gw    { color: #cc3030; }
+  .period-on    { color: var(--mint-dark); }
+  .period-ended { color: #b0a090; }
+
+  .card-desc { font-size: 11.5px; color: var(--muted); line-height: 1.6; }
+
+  .card-footer { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; align-items: center; }
+
+  .tag {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 99px;
+  }
+  .tag-gw     { background: #ffe0e0; color: #cc3030; }
+  .tag-osaka  { background: #fce97a; color: #6b5000; }
+  .tag-kyoto  { background: var(--pink); color: #6b1a30; }
+  .tag-tokyo  { background: var(--sky); color: #1a5080; }
+  .tag-fukuoka{ background: #d4f0d4; color: #1a6030; }
+  .tag-online { background: var(--lavender); color: #3d2080; }
+  .tag-cafe   { background: var(--orange); color: #7a3000; }
+  .tag-usj    { background: #f0d0d0; color: #803030; }
+  .tag-free   { background: #e8f8e8; color: #2a7a2a; }
+
+  .cat-section.hidden { display: none; }
+
+  .note {
+    background: #fff8e6;
+    border-left: 4px solid var(--yellow);
+    border-radius: 0 14px 14px 0;
+    padding: 11px 14px;
+    font-size: 12px; color: #7a6020; line-height: 1.7;
+    margin-bottom: 18px;
+  }
+
+  .ended-label {
+    font-size: 10px; background: #e8ddd5; color: #8a7060;
+    padding: 2px 8px; border-radius: 99px; font-weight: 700;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>🎌 動漫活動 GW</h1>
+    <div class="header-sub">5月1日〜5月5日 京阪為主・含近期活動</div>
+  </div>
+
+  <div class="status-row">
+    <span class="status-badge badge-gw">🔥 GW期間中</span>
+    <span class="status-badge badge-on">✅ 現在開催中</span>
+    <span class="status-badge badge-ended">已結束</span>
+  </div>
+
+  <div class="note">
+    📌 GW 期間部分活動人潮多，建議提前確認官網入場方式<br>
+    📌 下方「已結束」活動仍列出供參考，部分商品仍可購買
+  </div>
+
+  <!-- 分類 Tabs -->
+  <div class="cat-tabs">
+    <button class="cat-tab active" onclick="filterCat('all')">全部</button>
+    <button class="cat-tab" onclick="filterCat('frieren')">🧝 芙莉蓮</button>
+    <button class="cat-tab" onclick="filterCat('bluelock')">⚽ 藍色監獄</button>
+    <button class="cat-tab" onclick="filterCat('oshinoko')">⭐ 我推的孩子</button>
+    <button class="cat-tab" onclick="filterCat('kisekoi')">🎎 換裝娃娃</button>
+    <button class="cat-tab" onclick="filterCat('other')">🎡 其他</button>
+  </div>
+
+  <!-- ════ 芙莉蓮 ════ -->
+  <div class="cat-section" data-cat="frieren">
+    <div class="section-title">
+      <span class="icon">🧝</span>
+      <span class="label">葬送のフリーレン</span>
+      <div class="line"></div>
+    </div>
+
+    <!-- GW期間中 -->
+    <a class="event-card" href="https://frieren-anime.jp/news/4897/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-frieren"></div>
+        <div class="card-content">
+          <div class="card-series">葬送のフリーレン × マッドハウス</div>
+          <div class="card-top">
+            <div class="card-name">「創作のフリーレン」POP UP SHOP<br>博多マルイ 5F</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-gw">🔥 5/1（五）〜 5/10（日）GW完全覆蓋！</div>
+          <div class="card-desc">描き下ろし創作テーマグッズ多數<br>購滿¥3,000可參加抽獎（A賞アクリルボード、B賞コースター、C賞ポストカード）</div>
+          <div class="card-footer">
+            <span class="tag tag-gw">GW開催</span>
+            <span class="tag tag-fukuoka">福岡</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://collabo-cafe.com/events/category/frieren/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-frieren"></div>
+        <div class="card-content">
+          <div class="card-series">葬送のフリーレン × あべのハルカス</div>
+          <div class="card-top">
+            <div class="card-name">「高層のフリーレン」コラボイベント<br>あべのハルカス300 展望台</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-gw">🔥 4/28（火）〜 7/22（水）</div>
+          <div class="card-desc">大阪！限定チケット・コラボカフェ・館内装飾<br>夜間限定マッピングあり、展望台でフリーレンの世界へ</div>
+          <div class="card-footer">
+            <span class="tag tag-gw">GW開催</span>
+            <span class="tag tag-osaka">大阪 阿倍野</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://collabo-cafe.com/events/category/frieren/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-frieren"></div>
+        <div class="card-content">
+          <div class="card-series">葬送のフリーレン × スイーツパラダイス</div>
+          <div class="card-top">
+            <div class="card-name">フリーレン コラボカフェ<br>京都河原町OPA店・梅田店</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-gw">🔥 3/3（火）〜 開催中（GW期間も継続）</div>
+          <div class="card-desc">アニメ2期の場面をイメージしたコラボメニュー<br>カフェ限定の描き起こしグッズも！京都・大阪両方あり</div>
+          <div class="card-footer">
+            <span class="tag tag-gw">GW開催</span>
+            <span class="tag tag-kyoto">京都 河原町</span>
+            <span class="tag tag-osaka">大阪 梅田</span>
+            <span class="tag tag-cafe">コラボカフェ</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://collabo-cafe.com/events/category/frieren/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-frieren"></div>
+        <div class="card-content">
+          <div class="card-series">葬送のフリーレン × ジャンカラ</div>
+          <div class="card-top">
+            <div class="card-name">フリーレン コラボカラオケ<br>全国ジャンカラ（大阪・京都多数）</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-gw">🔥 2/25（水）〜 5/26（火）</div>
+          <div class="card-desc">全店でコラボドリンクコース展開<br>全国14店舗でコラボルームも実施！大阪・京都に多数あり</div>
+          <div class="card-footer">
+            <span class="tag tag-gw">GW開催</span>
+            <span class="tag tag-osaka">大阪</span>
+            <span class="tag tag-kyoto">京都</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://www.usj.co.jp/web/ja/jp/events/universal-cool-japan-2026/frieren" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-usj"></div>
+        <div class="card-content">
+          <div class="card-series">葬送のフリーレン × USJ（ユニバーサル・スタジオ・ジャパン）</div>
+          <div class="card-top">
+            <div class="card-name">フリーレン ストーリー・ウォーク<br>〜追憶の旅〜（USJ 大阪）</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-gw">🔥 5/30（六）〜 開始（GW後）</div>
+          <div class="card-desc">USJ初コラボ！大阪に行くなら要チェック<br>作品モチーフのコラボレストランも登場予定</div>
+          <div class="card-footer">
+            <span class="tag tag-usj">USJ 大阪</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <!-- 一番くじ -->
+    <a class="event-card" href="https://collabo-cafe.com/events/category/frieren/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-frieren"></div>
+        <div class="card-content">
+          <div class="card-series">葬送のフリーレン × 一番くじ</div>
+          <div class="card-top">
+            <div class="card-name">フリーレン 一番くじ<br>全国セブン-イレブン等</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-gw">🔥 4/10（金）〜 在庫なくなり次第終了</div>
+          <div class="card-desc">GW期間もコンビニで購入できる！<br>フィギュアやぬいぐるみが景品に</div>
+          <div class="card-footer">
+            <span class="tag tag-gw">GW開催</span>
+            <span class="tag tag-osaka">全国</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <!-- 已結束 -->
+    <a class="event-card" href="https://collabo-cafe.com/events/category/frieren/" target="_blank" style="opacity:0.6">
+      <div class="card-inner">
+        <div class="card-accent a-frieren"></div>
+        <div class="card-content">
+          <div class="card-series">葬送のフリーレン × マッドハウス</div>
+          <div class="card-top">
+            <div class="card-name">「創作のフリーレン」POP UP SHOP<br>東京・神戸・名古屋 巡回</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-ended">已結束 3/6〜4/27</div>
+          <div class="card-desc">東京→神戸→名古屋で巡回開催済み<br>オンライン通販（MeeToMa）では継続販売中</div>
+          <div class="card-footer">
+            <span class="ended-label">已結束</span>
+            <span class="tag tag-online">オンライン継続</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ════ 藍色監獄 ════ -->
+  <div class="cat-section" data-cat="bluelock">
+    <div class="section-title">
+      <span class="icon">⚽</span>
+      <span class="label">ブルーロック</span>
+      <div class="line"></div>
+    </div>
+
+    <a class="event-card" href="https://collabo-cafe.com/events/category/blue-lock/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-bluelock"></div>
+        <div class="card-content">
+          <div class="card-series">ブルーロック × バンダイスピリッツ</div>
+          <div class="card-top">
+            <div class="card-name">一番くじ「あでぃしょなる・たいむ！」<br>全国量販店</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-gw">🔥 5/2（六）〜 在庫なくなり次第終了</div>
+          <div class="card-desc">エゴイスト達のいつもと違う姿がグッズに！<br>GWにゲームセンター・量販店でくじ引き</div>
+          <div class="card-footer">
+            <span class="tag tag-gw">GW開始</span>
+            <span class="tag tag-osaka">全国</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://collabo-cafe.com/events/category/blue-lock/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-bluelock"></div>
+        <div class="card-content">
+          <div class="card-series">ブルーロック × 東京スカイツリー</div>
+          <div class="card-top">
+            <div class="card-name">ブルーロック コラボイベント<br>東京スカイツリー</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-gw">🔥 4/9（木）〜 7/6（月）</div>
+          <div class="card-desc">カフェメニュー・展示装飾が登場<br>東京観光と合わせて</div>
+          <div class="card-footer">
+            <span class="tag tag-gw">GW開催</span>
+            <span class="tag tag-tokyo">東京</span>
+            <span class="tag tag-cafe">コラボカフェ</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://www.bluelockegoistexhibition.com/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-bluelock"></div>
+        <div class="card-content">
+          <div class="card-series">ブルーロック展 EGOIST EXHIBITION the animation</div>
+          <div class="card-top">
+            <div class="card-name">ブルーロック展 "Extra Time" 全国巡回<br>要確認最新巡回地點</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-on">✅ 全国巡回中（地點需確認）</div>
+          <div class="card-desc">ノ村優介先生原画展・等身大立像・3面シアター<br>1期・2期・劇場版凪すべてを網羅した総決算展示</div>
+          <div class="card-footer">
+            <span class="tag tag-osaka">巡回中</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://collabo-cafe.com/events/category/blue-lock/" target="_blank" style="opacity:0.6">
+      <div class="card-inner">
+        <div class="card-accent a-bluelock"></div>
+        <div class="card-content">
+          <div class="card-series">ブルーロック × ロフト おとぎ話テーマ</div>
+          <div class="card-top">
+            <div class="card-name">ブルーロック POP UP STORE in ロフト<br>梅田ロフト（他5店舗）</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-ended">已結束 12/4〜2/11</div>
+          <div class="card-desc">おとぎ話テーマ描き下ろし、梅田ロフトで開催済み</div>
+          <div class="card-footer">
+            <span class="ended-label">已結束</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ════ 我推的孩子 ════ -->
+  <div class="cat-section" data-cat="oshinoko">
+    <div class="section-title">
+      <span class="icon">⭐</span>
+      <span class="label">【推しの子】</span>
+      <div class="line"></div>
+    </div>
+
+    <a class="event-card" href="https://collabo-cafe.com/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-oshinoko"></div>
+        <div class="card-content">
+          <div class="card-series">【推しの子】× スイーツパラダイス</div>
+          <div class="card-top">
+            <div class="card-name">推しの子 コラボカフェ 第3弾<br>スイーツパラダイス（梅田・京都含む）</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-gw">🔥 2/6（金）〜 GW期間も継続中</div>
+          <div class="card-desc">第3弾コラボ！キャラクターイメージメニュー<br>カフェ限定グッズもあり</div>
+          <div class="card-footer">
+            <span class="tag tag-gw">GW開催</span>
+            <span class="tag tag-osaka">大阪 梅田</span>
+            <span class="tag tag-kyoto">京都</span>
+            <span class="tag tag-cafe">コラボカフェ</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://www.fun-japan.jp/jp/articlesPromotion/14430" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-oshinoko"></div>
+        <div class="card-content">
+          <div class="card-series">【推しの子】× 京まふ（京都国際マンガ・アニメフェア）</div>
+          <div class="card-top">
+            <div class="card-name">推しの子 展示・ステージ<br>みやこめっせ（京都）</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-ended">参考：例年9月頃開催（2026年秋予定）</div>
+          <div class="card-desc">昨年も推しの子ステージ登場、今年の詳細は未発表<br>京都の大型アニメイベント、秋に要チェック</div>
+          <div class="card-footer">
+            <span class="ended-label">秋開催予定</span>
+            <span class="tag tag-kyoto">京都</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ════ 換裝娃娃 ════ -->
+  <div class="cat-section" data-cat="kisekoi">
+    <div class="section-title">
+      <span class="icon">🎎</span>
+      <span class="label">その着せ替え人形は恋をする</span>
+      <div class="line"></div>
+    </div>
+
+    <a class="event-card" href="https://bisquedoll-anime-exhibition.com/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-kisekoi"></div>
+        <div class="card-content">
+          <div class="card-series">その着せ替え人形は恋をする</div>
+          <div class="card-top">
+            <div class="card-name">着せ恋 展覧会<br>大阪（TVアニメ放送1周年記念）</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-on">✅ 開催詳細は公式サイトで確認</div>
+          <div class="card-desc">大阪での開催が決定！貴重な原画・特別衣装展示<br>作品世界観に浸れる多数の展示あり</div>
+          <div class="card-footer">
+            <span class="tag tag-osaka">大阪</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://bisquedoll-anime-exhibition.com/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-kisekoi"></div>
+        <div class="card-content">
+          <div class="card-series">その着せ替え人形は恋をする × アニメイト</div>
+          <div class="card-top">
+            <div class="card-name">着せ恋 グッズ・フェア<br>アニメイト各店（大阪日本橋・梅田）</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-on">✅ 随時開催（公式X確認推薦）</div>
+          <div class="card-desc">アニメイト大阪日本橋・梅田でフェア開催<br>公式X（@kisekoi_animeEX）で最新情報確認</div>
+          <div class="card-footer">
+            <span class="tag tag-osaka">大阪 日本橋・梅田</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ════ 其他 ════ -->
+  <div class="cat-section" data-cat="other">
+    <div class="section-title">
+      <span class="icon">🎡</span>
+      <span class="label">其他 GW 期間動漫活動</span>
+      <div class="line"></div>
+    </div>
+
+    <a class="event-card" href="https://collabo-cafe.com/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-other"></div>
+        <div class="card-content">
+          <div class="card-series">魔法つかいプリキュア！10周年</div>
+          <div class="card-top">
+            <div class="card-name">魔法つかいプリキュア！10周年カフェ<br>大阪・京都・東京 3都市</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-gw">🔥 5/2（六）〜 開催</div>
+          <div class="card-desc">10周年記念コラボカフェが関西にも！<br>プリキュアファンは要チェック</div>
+          <div class="card-footer">
+            <span class="tag tag-gw">GW開始</span>
+            <span class="tag tag-osaka">大阪</span>
+            <span class="tag tag-kyoto">京都</span>
+            <span class="tag tag-cafe">コラボカフェ</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://collabo-cafe.com/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-other"></div>
+        <div class="card-content">
+          <div class="card-series">少女終末旅行</div>
+          <div class="card-top">
+            <div class="card-name">少女終末旅行 POP UP STORE<br>東京・大阪</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-gw">🔥 4/24（金）〜 開催中</div>
+          <div class="card-desc">東京と大阪で同時展開</div>
+          <div class="card-footer">
+            <span class="tag tag-gw">GW開催</span>
+            <span class="tag tag-osaka">大阪</span>
+            <span class="tag tag-tokyo">東京</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://collabo-cafe.com/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-other"></div>
+        <div class="card-content">
+          <div class="card-series">うらみちお兄さん × スーツ</div>
+          <div class="card-top">
+            <div class="card-name">うらみちお兄さん スーツ ストア<br>東京・大阪</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-gw">🔥 2/26（木）〜 5/5（火）</div>
+          <div class="card-desc">GW最終日まで！</div>
+          <div class="card-footer">
+            <span class="tag tag-gw">GW最終日まで</span>
+            <span class="tag tag-osaka">大阪</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://www.fun-japan.jp/jp/articlesPromotion/14430" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-other"></div>
+        <div class="card-content">
+          <div class="card-series">大阪・京都・兵庫 動漫活動總整理</div>
+          <div class="card-top">
+            <div class="card-name">2026 関西動漫遊戲イベント年間一覧<br>Fun Japan 整理</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-on">✅ 持續更新</div>
+          <div class="card-desc">涵蓋大阪・京都・兵庫的コスプレ・漫画・声優活動<br>出發前可查詢最新追加活動</div>
+          <div class="card-footer">
+            <span class="tag tag-osaka">大阪</span>
+            <span class="tag tag-kyoto">京都</span>
+            <span class="tag tag-free">免費查看</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="event-card" href="https://collabo-cafe.com/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent a-other"></div>
+        <div class="card-content">
+          <div class="card-series">コラボカフェ 最新動漫活動情報</div>
+          <div class="card-top">
+            <div class="card-name">collabo-cafe.com 動漫活動總覽<br>隨時更新</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-period period-on">✅ 持續更新</div>
+          <div class="card-desc">日本最大動漫コラボ情報サイト<br>出發前最後確認有無新增活動</div>
+          <div class="card-footer">
+            <span class="tag tag-free">免費查看</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+<script>
+  function filterCat(cat) {
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('.cat-section').forEach(sec => {
+      sec.classList.toggle('hidden', cat !== 'all' && sec.dataset.cat !== cat);
+    });
+  }
+</script>
+</body>
+</html>

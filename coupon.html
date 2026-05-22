@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本優惠券</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fdf6ee;
+    --pink: #f5b8c8;
+    --pink-dark: #e8849a;
+    --mint: #b8e8d8;
+    --mint-dark: #5abf9a;
+    --yellow: #fce97a;
+    --lavender: #d4c8f0;
+    --orange: #ffd4a8;
+    --orange-dark: #f5a040;
+    --brown: #7a4f3a;
+    --text: #3d2b1f;
+    --muted: #a07060;
+    --border: #ead8c8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, #e8d5c4 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px 48px;
+  }
+
+  /* ── Header ── */
+  .header { text-align: center; padding: 20px 0 20px; }
+  .header h1 {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 22px; font-weight: 900; color: var(--brown);
+  }
+  .header-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Note ── */
+  .top-note {
+    background: #fff8e6;
+    border-left: 4px solid var(--yellow);
+    border-radius: 0 14px 14px 0;
+    padding: 11px 14px;
+    font-size: 12px; color: #7a6020; line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  /* ── Category ── */
+  .cat-tabs {
+    display: flex; gap: 8px; margin-bottom: 18px;
+    overflow-x: auto; padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .cat-tabs::-webkit-scrollbar { display: none; }
+
+  .cat-tab {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 99px;
+    border: 2px solid var(--border);
+    background: white;
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+    font-family: 'Noto Sans TC', sans-serif;
+    white-space: nowrap;
+  }
+  .cat-tab.active, .cat-tab:hover {
+    border-color: var(--pink-dark);
+    background: var(--pink-dark); color: white;
+  }
+
+  /* ── Section title ── */
+  .section-title {
+    display: flex; align-items: center; gap: 10px;
+    margin: 20px 0 12px;
+  }
+  .section-title .icon { font-size: 18px; }
+  .section-title .label {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 15px; font-weight: 900; color: var(--brown);
+  }
+  .section-title .line {
+    flex: 1; height: 2px;
+    background: repeating-linear-gradient(to right, var(--pink) 0, var(--pink) 5px, transparent 5px, transparent 9px);
+  }
+
+  /* ── Coupon Card ── */
+  .coupon-card {
+    background: white;
+    border-radius: 18px;
+    padding: 0;
+    margin-bottom: 10px;
+    border: 2px solid var(--border);
+    box-shadow: 0 3px 10px rgba(100,60,40,0.07);
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+    text-decoration: none;
+    display: block;
+    color: var(--text);
+  }
+  .coupon-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(100,60,40,0.13);
+    border-color: var(--pink);
+  }
+  .coupon-card:active { transform: scale(0.98); }
+
+  .card-inner {
+    display: flex; align-items: stretch;
+  }
+
+  .card-accent {
+    width: 6px; flex-shrink: 0;
+  }
+  .card-accent.pink-dark { background: var(--pink-dark); }
+  .card-accent.mint     { background: var(--mint-dark); }
+  .card-accent.orange   { background: var(--orange-dark); }
+  .card-accent.lavender { background: #9a80e0; }
+  .card-accent.yellow   { background: #d4a020; }
+  .card-accent.brown    { background: #8b6040; }
+
+  .card-content {
+    flex: 1; padding: 13px 14px; min-width: 0;
+  }
+
+  .card-top {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 8px;
+    margin-bottom: 5px;
+  }
+
+  .card-name {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 15px; font-weight: 900; color: var(--brown);
+    line-height: 1.3;
+  }
+
+  .card-arrow {
+    font-size: 14px; color: var(--muted); flex-shrink: 0; margin-top: 2px;
+  }
+
+  .card-discount {
+    font-size: 12px; font-weight: 700; color: var(--pink-dark);
+    margin-bottom: 4px;
+  }
+
+  .card-desc {
+    font-size: 11.5px; color: var(--muted); line-height: 1.6;
+  }
+
+  .card-footer {
+    display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 99px;
+  }
+  .tag-pink   { background: var(--pink);    color: #6b1a30; }
+  .tag-mint   { background: var(--mint);    color: #1a5e48; }
+  .tag-yellow { background: var(--yellow);  color: #6b5000; }
+  .tag-purple { background: var(--lavender);color: #3d2080; }
+  .tag-orange { background: var(--orange);  color: #7a3000; }
+  .tag-gray   { background: #e8ddd5;        color: #5a4a40; }
+
+  .expiry {
+    font-size: 10px; color: #b09080;
+    margin-left: auto; white-space: nowrap; align-self: center;
+  }
+
+  /* ── Hidden sections ── */
+  .cat-section { display: block; }
+  .cat-section.hidden { display: none; }
+
+  /* ── Count badge ── */
+  .count-badge {
+    display: inline-block;
+    background: var(--pink);
+    color: #6b1a30;
+    font-size: 10px; font-weight: 700;
+    padding: 1px 7px; border-radius: 99px;
+    margin-left: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>🎫 日本優惠券</h1>
+    <div class="header-sub">2026 最新整理・手機出示即可使用</div>
+  </div>
+
+  <div class="top-note">
+    📌 使用方式：結帳時出示手機畫面＋護照給店員即可<br>
+    📌 大部分免稅（10%）＋額外折扣可疊加<br>
+    📌 部分特價品、餐廳、食品不適用，現場確認
+  </div>
+
+  <!-- 分類 Tabs -->
+  <div class="cat-tabs">
+    <button class="cat-tab active" onclick="filterCat('all')">全部</button>
+    <button class="cat-tab" onclick="filterCat('drugstore')">💊 藥妝</button>
+    <button class="cat-tab" onclick="filterCat('electric')">🔌 電器</button>
+    <button class="cat-tab" onclick="filterCat('dept')">🏬 百貨</button>
+    <button class="cat-tab" onclick="filterCat('misc')">🛒 雜貨</button>
+    <button class="cat-tab" onclick="filterCat('sports')">👟 運動</button>
+    <button class="cat-tab" onclick="filterCat('airport')">✈️ 機場</button>
+  </div>
+
+  <!-- ════════ 藥妝 ════════ -->
+  <div class="cat-section" data-cat="drugstore">
+    <div class="section-title">
+      <span class="icon">💊</span>
+      <span class="label">藥妝店</span>
+      <div class="line"></div>
+    </div>
+
+    <a class="coupon-card" href="https://www.letsgojp.com/coupon/matsumoto/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent pink-dark"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">松本清 Matsumoto Kiyoshi</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋最高7%OFF → 最高17%折扣</div>
+          <div class="card-desc">滿¥10,000享3%、¥30,000享5%、¥50,000享7%<br>全日本超過1,000間分店，到處都有</div>
+          <div class="card-footer">
+            <span class="tag tag-pink">全日本</span>
+            <span class="tag tag-mint">手機出示</span>
+            <span class="expiry">效期 2026</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.letsgojp.com/coupon/daikoku/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent pink-dark"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">大國藥妝 Daikoku Drug</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋最高5%OFF</div>
+          <div class="card-desc">號稱日本最便宜藥妝，大量零食伴手禮<br>店員大多會中英文</div>
+          <div class="card-footer">
+            <span class="tag tag-pink">關西為主</span>
+            <span class="tag tag-mint">手機出示</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.flyasia.co/2026/japan-coupon/#sundrug" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent pink-dark"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">Sundrug 尚都樂客（太陽藥妝）</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋最高7%OFF → 最高17%</div>
+          <div class="card-desc">¥10,000起享3%、¥30,000享5%、¥50,000享7%<br>上野、淺草、池袋都有，營業超晚</div>
+          <div class="card-footer">
+            <span class="tag tag-pink">全日本</span>
+            <span class="tag tag-mint">手機出示</span>
+            <span class="expiry">效期 2026/10/31</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.flyasia.co/2026/japan-coupon/#kokumin" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent pink-dark"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">KoKuMiN 國民藥妝</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋最高8%OFF → 最高18%</div>
+          <div class="card-desc">車站、商店街常見，¥5,000起享5%、¥30,000享8%</div>
+          <div class="card-footer">
+            <span class="tag tag-pink">全日本</span>
+            <span class="tag tag-mint">手機出示</span>
+            <span class="expiry">效期 2026/12/31</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.letsgojp.com/coupon/sugi/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent pink-dark"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">SUGI 藥局</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋最高8%OFF</div>
+          <div class="card-desc">關東・中部・關西超過1,600間，有美容顧問駐店</div>
+          <div class="card-footer">
+            <span class="tag tag-pink">關東關西</span>
+            <span class="tag tag-mint">手機出示</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://mimigo.tw/coupon-cosmos/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent pink-dark"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">COSMOS 科摩思</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">最高17%折扣</div>
+          <div class="card-desc">全日本超過1,000間，含資生堂、KOSE等化妝品品牌<br>有89間免稅店</div>
+          <div class="card-footer">
+            <span class="tag tag-pink">全日本</span>
+            <span class="tag tag-mint">手機出示</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.letsgojp.com/coupon/sapporo-drug/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent pink-dark"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">札幌藥妝 Sapporo Drug Store</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋再折扣</div>
+          <div class="card-desc">北海道深耕超50年，有大量北海道限定商品<br>狸小路旗艦店三層樓</div>
+          <div class="card-footer">
+            <span class="tag tag-pink">北海道為主</span>
+            <span class="tag tag-mint">手機出示</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.letsgojp.com/coupon/cocokara/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent pink-dark"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">Cocokara fine 藥妝</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅＋折扣優惠</div>
+          <div class="card-desc">鬧市、居住區、近郊皆有分店，也有松本清自有品牌</div>
+          <div class="card-footer">
+            <span class="tag tag-pink">全日本</span>
+            <span class="tag tag-mint">手機出示</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ════════ 電器 ════════ -->
+  <div class="cat-section" data-cat="electric">
+    <div class="section-title">
+      <span class="icon">🔌</span>
+      <span class="label">電器行</span>
+      <div class="line"></div>
+    </div>
+
+    <a class="coupon-card" href="https://www.letsgojp.com/coupon/biccamera/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent mint"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">Bic Camera ビックカメラ</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">電器免稅10%＋7%OFF → 最高17%<br>藥妝免稅10%＋5%OFF → 最高15%</div>
+          <div class="card-desc">日本最大家電專賣，大車站附近必有<br>含家電、相機、藥妝、玩具一站購齊</div>
+          <div class="card-footer">
+            <span class="tag tag-mint">全日本</span>
+            <span class="tag tag-yellow">掃條碼</span>
+            <span class="expiry">效期 2026/8/31</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://travelcontentsapp.com/coupon/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent mint"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">EDION 愛電王</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">電器免稅10%＋7%OFF → 最高17%<br>藥妝免稅10%＋5%OFF → 最高15%</div>
+          <div class="card-desc">全日本約1,200間，大阪難波/道頓堀/心齋橋都有<br>京都四条河原町店（原高島屋旁）很推薦</div>
+          <div class="card-footer">
+            <span class="tag tag-mint">全日本</span>
+            <span class="tag tag-yellow">手機出示</span>
+            <span class="expiry">效期 2026/10/31</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.flyasia.co/2026/japan-coupon/#joshin" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent mint"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">Joshin 上新電機</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋8%OFF → 最高18%</div>
+          <div class="card-desc">關西為主，玩具、模型、動漫、攝影迷必去<br>無最低消費限制</div>
+          <div class="card-footer">
+            <span class="tag tag-mint">關西為主</span>
+            <span class="tag tag-yellow">掃條碼</span>
+            <span class="expiry">效期 2026/10/31</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://gogojp.tw/coupon-all/#yamada" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent mint"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">YAMADA LABI 山田電機</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋折扣</div>
+          <div class="card-desc">日本最大電器連鎖，YAMADA/LABI/Tecc.Land<br>含家電、美妝、日用品</div>
+          <div class="card-footer">
+            <span class="tag tag-mint">全日本</span>
+            <span class="tag tag-yellow">手機出示</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.flyasia.co/2026/japan-coupon/#laox" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent mint"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">LAOX 樂購仕 綜合免稅店</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋8%OFF → 最高18%</div>
+          <div class="card-desc">滿¥5,000即享，藥妝、家電、食品、雜貨一站<br>秋葉原、銀座、大阪道頓堀等地有店</div>
+          <div class="card-footer">
+            <span class="tag tag-mint">指定門市</span>
+            <span class="tag tag-yellow">手機出示</span>
+            <span class="expiry">效期 2026/12/31</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.likejapan.com/旅遊優惠券-likejapan優惠" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent mint"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">北村相機 Kitamura Camera</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋5%OFF</div>
+          <div class="card-desc">1934年創立，全國約600間，新宿/難波旗艦店<br>Leica官方授權、新舊相機齊全</div>
+          <div class="card-footer">
+            <span class="tag tag-mint">全日本</span>
+            <span class="tag tag-yellow">手機出示</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ════════ 百貨 ════════ -->
+  <div class="cat-section" data-cat="dept">
+    <div class="section-title">
+      <span class="icon">🏬</span>
+      <span class="label">百貨公司</span>
+      <div class="line"></div>
+    </div>
+
+    <a class="coupon-card" href="https://reurl.cc/041vpY" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent lavender"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">大丸百貨・松坂屋百貨</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">5%OFF＋退稅滿額贈美食券¥2,000</div>
+          <div class="card-desc">大丸：心齋橋/梅田/京都/神戶/東京/札幌<br>松坂屋：名古屋/上野/靜岡｜需手機或平板出示PDF</div>
+          <div class="card-footer">
+            <span class="tag tag-purple">指定門市</span>
+            <span class="tag tag-pink">出示PDF</span>
+            <span class="expiry">效期 2026/8/31</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://reurl.cc/5K9aA6" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent lavender"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">高島屋 Takashimaya</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">消費滿¥3,000 享95折</div>
+          <div class="card-desc">大阪/日本橋/京都/橫濱/新宿等多店<br>結帳前至服務台辦理</div>
+          <div class="card-footer">
+            <span class="tag tag-purple">多地點</span>
+            <span class="tag tag-gray">需至服務台</span>
+            <span class="expiry">效期 2026/2/28</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://reurl.cc/964v4X" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent lavender"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">東武百貨 TOBU（池袋店）</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">單件¥1,000以上享95折</div>
+          <div class="card-desc">東京池袋西口，東京最大百貨之一<br>需先去2F免稅服務台換取優惠券</div>
+          <div class="card-footer">
+            <span class="tag tag-purple">池袋</span>
+            <span class="tag tag-gray">需換券</span>
+            <span class="expiry">效期 2026/9/30</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://reurl.cc/1X1v1p" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent lavender"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">西武・SOGO百貨</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">單件¥1,000以上享95折</div>
+          <div class="card-desc">手機出示畫面即可</div>
+          <div class="card-footer">
+            <span class="tag tag-purple">指定門市</span>
+            <span class="tag tag-pink">手機出示</span>
+            <span class="expiry">效期 2026/12/31</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://reurl.cc/26LYLa" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent lavender"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">近鐵百貨 Kintetsu</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">消費滿¥2,000享95折</div>
+          <div class="card-desc">大阪、名古屋、奈良等關西地區<br>阿倍野海闊天空總店為旗艦</div>
+          <div class="card-footer">
+            <span class="tag tag-purple">關西為主</span>
+            <span class="tag tag-pink">手機出示</span>
+            <span class="expiry">效期 2026/12/31</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://reurl.cc/36xX4L" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent lavender"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">京王百貨 Keio（新宿西口）</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">消費滿¥3,000享95折</div>
+          <div class="card-desc">新宿西口，內含Bic Camera電器區<br>信用卡可用</div>
+          <div class="card-footer">
+            <span class="tag tag-purple">新宿</span>
+            <span class="tag tag-pink">手機出示</span>
+            <span class="expiry">效期 2026/3/31</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://isetan.mistore.jp/content/isetan/coupon.html" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent lavender"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">三越・伊勢丹百貨</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">消費滿¥3,000享95折</div>
+          <div class="card-desc">出示官方APP「SHOPPINGCOUPON」QR碼及護照<br>新宿伊勢丹、日本橋三越等多店適用</div>
+          <div class="card-footer">
+            <span class="tag tag-purple">全日本</span>
+            <span class="tag tag-pink">APP QR碼</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.hankyu-dept.co.jp/honten/special/foreigner/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent lavender"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">阪急・阪神百貨</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">旅客專屬折扣</div>
+          <div class="card-desc">梅田為主要據點，大阪購物首選</div>
+          <div class="card-footer">
+            <span class="tag tag-purple">梅田</span>
+            <span class="tag tag-pink">手機出示</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://mitsui-shopping-park.com/special/foreign/coupon/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent lavender"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">三井旗下百貨・Outlet Park</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">折扣＋送¥500購物券</div>
+          <div class="card-desc">全日本19間購物中心・Outlet，含LaLaport、EXPOCITY<br>中信卡加碼最高10%退稅+10%折扣</div>
+          <div class="card-footer">
+            <span class="tag tag-purple">全日本19間</span>
+            <span class="tag tag-gray">含Outlet</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ════════ 雜貨 ════════ -->
+  <div class="cat-section" data-cat="misc">
+    <div class="section-title">
+      <span class="icon">🛒</span>
+      <span class="label">雜貨・綜合</span>
+      <div class="line"></div>
+    </div>
+
+    <a class="coupon-card" href="https://japanportal.donki-global.com/coupon/?ptcd=0026000103" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent orange"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">唐吉訶德 DON DON DONKI</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋最高7%OFF</div>
+          <div class="card-desc">¥10,000享5%、¥30,000享7%<br>全日本皆可、部分24小時、生鮮零食伴手禮齊全</div>
+          <div class="card-footer">
+            <span class="tag tag-orange">全日本</span>
+            <span class="tag tag-mint">手機出示</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://shinblog.com.tw/japan-coupon/#takeya" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent orange"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">多慶屋 TAKEYA（上野）</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋最高7%OFF<br>持JCB卡最高22%</div>
+          <div class="card-desc">上野御徒町八棟主題館，10萬項商品<br>食品、藥妝、服飾、家電、寢具全有</div>
+          <div class="card-footer">
+            <span class="tag tag-orange">上野</span>
+            <span class="tag tag-mint">手機出示</span>
+            <span class="expiry">效期 2026/4/30</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.aeon.jp/coupon/foreign/" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent orange"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">AEON 永旺夢樂城</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">超市95折＋送¥500購物券</div>
+          <div class="card-desc">每消費¥5,500可用一張¥500券<br>非每間都適用，結帳前確認</div>
+          <div class="card-footer">
+            <span class="tag tag-orange">指定門市</span>
+            <span class="tag tag-gray">現場確認</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.flyasia.co/2026/japan-coupon/#aoyama" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent orange"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">青山洋服 AOYAMA</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">免稅10%＋10%OFF → 最高20%（8折！）</div>
+          <div class="card-desc">滿¥5,000即享，西裝、套裝、上班服裝<br>性價比極高</div>
+          <div class="card-footer">
+            <span class="tag tag-orange">全日本</span>
+            <span class="tag tag-mint">手機出示</span>
+            <span class="expiry">效期 2026/6/30</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://www.likejapan.com/旅遊優惠券-likejapan優惠" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent orange"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">GU（UNIQLO姊妹品牌）</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">消費滿¥5,500享免稅</div>
+          <div class="card-desc">全日本400多間，銀座旗艦有專用免稅櫃台<br>設計感足、價格親民</div>
+          <div class="card-footer">
+            <span class="tag tag-orange">全日本</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ════════ 運動 ════════ -->
+  <div class="cat-section" data-cat="sports">
+    <div class="section-title">
+      <span class="icon">👟</span>
+      <span class="label">運動・戶外</span>
+      <div class="line"></div>
+    </div>
+
+    <a class="coupon-card" href="https://gogojp.tw/coupon-all/#victoria" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent yellow"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">L-Breath / Victoria 運動用品</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">換季特價再享95折＋可退稅</div>
+          <div class="card-desc">On、adidas、Nike、NB、North Face、Snow Peak<br>滑雪、高爾夫、露營用品也有</div>
+          <div class="card-footer">
+            <span class="tag tag-yellow">指定品牌</span>
+            <span class="tag tag-mint">手機出示</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://gogojp.tw/coupon-all/#alpen" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent yellow"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">Alpen 阿爾卑斯運動</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">旅客專屬折扣</div>
+          <div class="card-desc">綜合運動用品，品牌齊全</div>
+          <div class="card-footer">
+            <span class="tag tag-yellow">指定門市</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ════════ 機場 ════════ -->
+  <div class="cat-section" data-cat="airport">
+    <div class="section-title">
+      <span class="icon">✈️</span>
+      <span class="label">機場免稅</span>
+      <div class="line"></div>
+    </div>
+
+    <a class="coupon-card" href="https://gogojp.tw/coupon-all/#narita" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent brown"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">成田機場 JAPAN DUTY FREE</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">折扣優惠</div>
+          <div class="card-desc">第1航廈北翼・第2航廈本館3F<br>化妝品、SEIKO精工錶、酒類、菸草</div>
+          <div class="card-footer">
+            <span class="tag tag-gray">成田機場</span>
+            <span class="tag tag-mint">手機出示</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a class="coupon-card" href="https://gogojp.tw/coupon-all/#fukuoka" target="_blank">
+      <div class="card-inner">
+        <div class="card-accent brown"></div>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-name">福岡機場免稅店 FaSoLa</div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card-discount">再折5%（食品伴手禮也適用！）</div>
+          <div class="card-desc">出境後共12間店舖適用<br>連伴手禮食品也可折，超值</div>
+          <div class="card-footer">
+            <span class="tag tag-gray">福岡機場</span>
+            <span class="tag tag-mint">手機出示</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+<script>
+  let currentCat = 'all';
+
+  function filterCat(cat) {
+    currentCat = cat;
+
+    // 更新 tabs
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // 顯示/隱藏 sections
+    document.querySelectorAll('.cat-section').forEach(sec => {
+      if (cat === 'all' || sec.dataset.cat === cat) {
+        sec.classList.remove('hidden');
+      } else {
+        sec.classList.add('hidden');
+      }
+    });
+  }
+</script>
+</body>
+</html>

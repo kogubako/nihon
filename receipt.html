@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>発票解析 · 日本工具箱</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --surface: #ffffff;
+            --surface2: #fdf6ee;
+            --border: #ead8c8;
+            --border2: #d9c4b0;
+            --text: #3d2b1f;
+            --text2: #7a4f3a;
+            --text3: #a07060;
+            --accent: #e8849a;
+            --accent2: #d06070;
+            --red: #c05050;
+            --green: #4a8a60;
+            --blue: #5880c0;
+            --tag-gemini-bg: #dbeafe;
+            --tag-gemini: #1d4ed8;
+            --tag-claude-bg: #ede9fe;
+            --tag-claude: #6d28d9;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* 點點背景 */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle, #e8d5c4 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 頂部裝飾線 */
+        body::before {
+            content: '';
+            display: block;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 24px 16px 64px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 28px 0 32px;
+        }
+        .header-en {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 4px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .header h1 {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 2px;
+        }
+        .header-sub {
+            font-size: 11px;
+            color: var(--text3);
+            margin-top: 6px;
+            letter-spacing: 1px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+
+        /* Settings */
+        .settings-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+        .settings-toggle-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text2);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .settings-toggle-label::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+        .settings-arrow {
+            color: var(--text3);
+            font-size: 11px;
+            transition: transform 0.25s;
+        }
+        .settings-arrow.open { transform: rotate(180deg); }
+        .settings-body { display: none; margin-top: 18px; }
+        .settings-body.open { display: block; }
+
+        /* Fields */
+        .field { margin-bottom: 14px; }
+        .field label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text3);
+            display: block;
+            margin-bottom: 6px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .field select, .field input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border2);
+            border-radius: 10px;
+            font-size: 13px;
+            background: var(--surface2);
+            color: var(--text);
+            outline: none;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.2s;
+        }
+        .field select:focus, .field input:focus { border-color: var(--accent); }
+        .field input[type="password"] { font-family: 'DM Mono', monospace; letter-spacing: 2px; }
+
+        .save-btn {
+            width: 100%;
+            padding: 11px;
+            background: var(--accent);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .save-btn:active { transform: scale(0.98); background: var(--accent2); }
+
+        /* Preview */
+        .preview-area {
+            width: 100%;
+            aspect-ratio: 4/3;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--surface2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            border: 1.5px dashed var(--border2);
+            cursor: pointer;
+            transition: border-color 0.2s;
+            gap: 8px;
+        }
+        .preview-area:active { border-color: var(--accent); }
+        .preview-area img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .preview-area img.show { display: block; }
+        .preview-icon { font-size: 28px; opacity: 0.3; }
+        .preview-hint { font-size: 12px; color: var(--text3); }
+
+        /* Buttons */
+        .cam-btns { display: flex; gap: 10px; }
+        .cam-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: 1px solid var(--border2);
+            background: var(--surface2);
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            letter-spacing: 0.3px;
+            transition: all 0.2s;
+        }
+        .cam-btn:active { transform: scale(0.97); }
+        .cam-btn.primary {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+            font-weight: 900;
+        }
+        .cam-btn.primary:disabled {
+            background: var(--surface2);
+            color: var(--text3);
+            border-color: var(--border);
+        }
+
+        /* Loading */
+        .loading-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 36px;
+            text-align: center;
+            display: none;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+        .loading-card.show { display: block; }
+        .spinner {
+            width: 32px; height: 32px;
+            border: 2px solid var(--border2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+            margin: 0 auto 14px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-size: 13px; color: var(--text3); letter-spacing: 1px; }
+
+        /* Status */
+        .status-text {
+            font-size: 12px;
+            color: var(--text3);
+            text-align: center;
+            min-height: 20px;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .status-text.err { color: var(--red); }
+        .status-text.ok { color: var(--green); }
+
+        /* Invoice Card */
+        .invoice-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            animation: fadeUp 0.3s ease both;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .invoice-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .invoice-time {
+            font-size: 11px;
+            color: var(--text3);
+            font-family: 'DM Mono', monospace;
+        }
+
+        /* Badge */
+        .inv-badge {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 99px;
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 0.5px;
+        }
+        .inv-badge.gemini { background: var(--tag-gemini-bg); color: var(--tag-gemini); }
+        .inv-badge.claude { background: var(--tag-claude-bg); color: var(--tag-claude); }
+
+        /* Table */
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th {
+            background: #fff5f0;
+            color: var(--accent);
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            font-weight: 700;
+        }
+        td {
+            padding: 9px 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            line-height: 1.4;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:last-child td {
+            font-weight: 700;
+            color: var(--text2);
+        }
+
+        /* Action buttons */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .act-btn {
+            padding: 10px 8px;
+            border-radius: 10px;
+            border: 1px solid;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            transition: all 0.15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .act-btn:active { transform: scale(0.97); }
+        .act-btn.copy {
+            background: transparent;
+            border-color: var(--green);
+            color: var(--green);
+        }
+        .act-btn.del {
+            background: transparent;
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 0 14px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding-top: 12px;
+            font-size: 10px;
+            color: var(--text3);
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="header-en">Japan Toolbox</div>
+        <h1>発票解析</h1>
+        <div class="header-sub">Gemini · Claude · 日本收據直連版</div>
+    </div>
+
+    <!-- API 設定 -->
+    <div class="card">
+        <div class="settings-toggle" onclick="toggleSettings()">
+            <span class="settings-toggle-label">API 設定</span>
+            <span class="settings-arrow" id="settingsArrow">▾</span>
+        </div>
+        <div class="settings-body" id="settingsBody">
+            <div class="divider"></div>
+            <div class="field">
+                <label>AI 引擎</label>
+                <select id="engineSelect" onchange="switchEngine(this.value)">
+                    <option value="gemini">Google Gemini</option>
+                    <option value="claude">Anthropic Claude</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>模型</label>
+                <select id="modelSelect"></select>
+            </div>
+            <div class="field">
+                <label>Gemini API Key</label>
+                <input type="password" id="geminiKey" placeholder="AIza...">
+            </div>
+            <div class="field">
+                <label>Claude API Key</label>
+                <input type="password" id="claudeKey" placeholder="sk-ant-...">
+            </div>
+            <button class="save-btn" onclick="saveSettings()">儲存設定</button>
+        </div>
+    </div>
+
+    <!-- 拍照/選圖 -->
+    <div class="card">
+        <div class="preview-area" id="previewArea" onclick="document.getElementById('galleryInput').click()">
+            <img id="previewImg" alt="預覽">
+            <div class="preview-icon" id="previewIcon">📄</div>
+            <div class="preview-hint" id="previewHint">點擊選取發票照片</div>
+        </div>
+        <input type="file" id="galleryInput" hidden accept="image/*" onchange="onFileChange(event)">
+        <input type="file" id="cameraInput" hidden accept="image/*" capture="environment" onchange="onFileChange(event)">
+        <div class="cam-btns">
+            <button class="cam-btn" onclick="document.getElementById('galleryInput').click()">🖼 選圖</button>
+            <button class="cam-btn" onclick="document.getElementById('cameraInput').click()">📷 拍照</button>
+            <button class="cam-btn primary" id="analyzeBtn" onclick="analyze()" disabled>解析</button>
+        </div>
+    </div>
+
+    <div class="status-text" id="statusText"></div>
+
+    <div class="loading-card" id="loadingCard">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">解析中 ...</div>
+    </div>
+
+    <div id="historyContainer"></div>
+
+    <div class="footer">INVOICE PARSER · 日本工具箱</div>
+</div>
+
+<script>
+const CONFIG = {
+    gemini: {
+        key: 'receipt-gemini-key',
+        models: [
+            {v:'gemini-2.0-flash', l:'Gemini 2.0 Flash'},
+            {v:'gemini-1.5-flash', l:'Gemini 1.5 Flash'}
+        ]
+    },
+    claude: {
+        key: 'receipt-claude-key',
+        models: [
+            {v:'claude-sonnet-4-5', l:'Claude Sonnet 4.5'},
+            {v:'claude-haiku-4-5-20251001', l:'Claude Haiku 4.5'}
+        ]
+    }
+};
+
+const HIS_KEY = 'invoice_history_v2';
+let base64Image = '', imageMime = 'image/jpeg', invoiceHistory = [];
+
+(function init() {
+    const engine = localStorage.getItem('receipt-engine') || 'gemini';
+    document.getElementById('engineSelect').value = engine;
+    switchEngine(engine, true);
+    try { invoiceHistory = JSON.parse(localStorage.getItem(HIS_KEY)) || []; } catch(e){}
+    renderHistory();
+})();
+
+function toggleSettings() {
+    const b = document.getElementById('settingsBody');
+    const arrow = document.getElementById('settingsArrow');
+    b.classList.toggle('open');
+    arrow.classList.toggle('open');
+}
+
+function switchEngine(engine, silent) {
+    const cfg = CONFIG[engine];
+    const sel = document.getElementById('modelSelect');
+    sel.innerHTML = cfg.models.map(m => `<option value="${m.v}">${m.l}</option>`).join('');
+    document.getElementById('geminiKey').value = localStorage.getItem(CONFIG.gemini.key) || '';
+    document.getElementById('claudeKey').value = localStorage.getItem(CONFIG.claude.key) || '';
+    if (!silent) localStorage.setItem('receipt-engine', engine);
+}
+
+function saveSettings() {
+    localStorage.setItem(CONFIG.gemini.key, document.getElementById('geminiKey').value.trim());
+    localStorage.setItem(CONFIG.claude.key, document.getElementById('claudeKey').value.trim());
+    localStorage.setItem('receipt-engine', document.getElementById('engineSelect').value);
+    localStorage.setItem('receipt-model-' + document.getElementById('engineSelect').value, document.getElementById('modelSelect').value);
+    alert('設定已儲存');
+    toggleSettings();
+}
+
+function onFileChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    imageMime = file.type;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        const imgEl = new Image();
+        imgEl.onload = () => {
+            const MAX_BYTES = 5 * 1024 * 1024;
+            let quality = 0.85;
+            let { width, height } = imgEl;
+            const MAX_SIDE = 2048;
+            if (width > MAX_SIDE || height > MAX_SIDE) {
+                const ratio = MAX_SIDE / Math.max(width, height);
+                width = Math.round(width * ratio);
+                height = Math.round(height * ratio);
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            canvas.getContext('2d').drawImage(imgEl, 0, 0, width, height);
+            let dataUrl;
+            do {
+                dataUrl = canvas.toDataURL('image/jpeg', quality);
+                quality -= 0.05;
+            } while (dataUrl.length * 0.75 > MAX_BYTES && quality > 0.1);
+
+            base64Image = dataUrl.split(',')[1];
+            imageMime = 'image/jpeg';
+
+            const preview = document.getElementById('previewImg');
+            preview.src = dataUrl;
+            preview.classList.add('show');
+            document.getElementById('previewIcon').style.display = 'none';
+            document.getElementById('previewHint').style.display = 'none';
+            document.getElementById('analyzeBtn').disabled = false;
+        };
+        imgEl.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+async function analyze() {
+    const engine = document.getElementById('engineSelect').value;
+    const model = document.getElementById('modelSelect').value;
+    const key = localStorage.getItem(CONFIG[engine].key);
+    if (!key) { alert('請先設定 API Key'); toggleSettings(); return; }
+
+    document.getElementById('loadingCard').classList.add('show');
+    const statusEl = document.getElementById('statusText');
+    statusEl.textContent = '';
+    statusEl.className = 'status-text';
+
+const prompt = `你是日本收據專業解析員。仔細觀察圖片中的收據，嚴格輸出純 JSON 陣列，不准包含 markdown 標籤或任何前導文字。
+
+格式：[{"date":"MM/DD","store":"商家名稱","item":"品項日文原文","translation":"繁體中文翻譯","price":數字}]
+最後一筆為：{"date":"","store":"","item":"總計","translation":"","price":總金額}
+
+解析規則：
+1. item 欄位：忠實抄寫發票上的日文原文，看不清楚的字用「？」代替，絕對不可猜測或捏造
+2. translation 欄位：根據 item 的日文原文直譯成繁體中文
+   - 日用品就翻日用品（例：歯ブラシ→牙刷、シャンプー→洗髮精）
+   - 食品就翻食品（例：おにぎり→飯糰、お茶→綠茶）
+   - 看不懂的保留日文原文，不可自行腦補
+3. store 欄位：填寫商家名稱日文原文，沒有則留空
+4. 同一張收據所有品項 date 相同
+5. price 只填數字，不含貨幣符號`;
+
+    try {
+        let rawText = '';
+        if (engine === 'gemini') {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: imageMime, data: base64Image } }] }] })
+            });
+            const d = await res.json();
+            if (!res.ok || d.error) throw new Error(d.error?.message || `HTTP ${res.status}`);
+            rawText = d.candidates[0].content.parts[0].text;
+        } else {
+            const res = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': key,
+                    'anthropic-version': '2023-06-01',
+                    'anthropic-dangerous-direct-browser-access': 'true'
+                },
+                body: JSON.stringify({
+                    model,
+                    max_tokens: 1500,
+                    system: "You are a specialized JSON parser. Output only the raw JSON array. No preamble, no markdown blocks.",
+                    messages: [{ role: 'user', content: [
+                        { type: 'image', source: { type: 'base64', media_type: imageMime, data: base64Image } },
+                        { type: 'text', text: prompt }
+                    ]}]
+                })
+            });
+            const d = await res.json();
+            if (!res.ok || d.error) throw new Error(JSON.stringify(d.error) || `HTTP ${res.status}`);
+            rawText = d.content[0].text;
+        }
+
+        const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+        if (!jsonMatch) throw new Error('找不到有效的 JSON 格式，請重試');
+        const parsedData = JSON.parse(jsonMatch[0]);
+
+        invoiceHistory.unshift({ timestamp: Date.now(), engine, model, data: parsedData });
+        localStorage.setItem(HIS_KEY, JSON.stringify(invoiceHistory));
+        renderHistory();
+
+        statusEl.className = 'status-text ok';
+        statusEl.textContent = '✓ 解析成功';
+    } catch (err) {
+        statusEl.className = 'status-text err';
+        statusEl.textContent = '✗ ' + err.message;
+    }
+    document.getElementById('loadingCard').classList.remove('show');
+}
+
+function renderHistory() {
+    const container = document.getElementById('historyContainer');
+    container.innerHTML = invoiceHistory.map((rec, idx) => `
+        <div class="invoice-card">
+            <div class="invoice-meta">
+                <span class="invoice-time">${new Date(rec.timestamp).toLocaleString('zh-TW')}</span>
+                <span class="inv-badge ${rec.engine}">${rec.engine}</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <tr><th>日期</th><th>項目</th><th>商家</th><th>金額</th></tr>
+                    ${rec.data.map(row => `
+                        <tr>
+                            <td>${row.date || ''}</td>
+                            <td>${row.translation ? row.translation + '<br><span style="color:var(--text3);font-size:11px">' + row.item + '</span>' : row.item}</td>
+                            <td>${row.store || ''}</td>
+                            <td>¥${row.price}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+            </div>
+            <div class="action-grid">
+                <button class="act-btn copy" onclick="copyText(${idx})">📋 複製 Excel</button>
+                <button class="act-btn del" onclick="deleteRec(${idx})">🗑 刪除</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function copyText(idx) {
+    const rows = invoiceHistory[idx].data
+        .filter(r => r.item !== '總計')
+        .map(r => `${r.date} ${r.translation}(${r.item})\t${r.store || ''}\t${r.price}`)
+        .join('\n');
+    navigator.clipboard.writeText(rows);
+    alert('已複製，可直接貼入 Excel');
+}
+
+function deleteRec(idx) {
+    if (confirm('確定刪除？')) {
+        invoiceHistory.splice(idx, 1);
+        localStorage.setItem(HIS_KEY, JSON.stringify(invoiceHistory));
+        renderHistory();
+    }
+}
+</script>
+</body>
+</html>
