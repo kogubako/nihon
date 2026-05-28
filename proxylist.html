@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>代購清單</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fdf6ee;
+    --pink: #f5b8c8;
+    --pink-dark: #e8849a;
+    --mint: #b8e8d8;
+    --mint-dark: #5abf9a;
+    --yellow: #fce97a;
+    --lavender: #d4c8f0;
+    --orange: #ffd4a8;
+    --brown: #7a4f3a;
+    --text: #3d2b1f;
+    --muted: #a07060;
+    --border: #ead8c8;
+    --surface: #ffffff;
+    --red: #f87171;
+  }
+
+  /* ── 代購人顏色池 ── */
+  :root {
+    --person-0: #f5b8c8; --person-0t: #7a1a38;
+    --person-1: #b8e8d8; --person-1t: #1a5e48;
+    --person-2: #d4c8f0; --person-2t: #3d2080;
+    --person-3: #ffd4a8; --person-3t: #7a3800;
+    --person-4: #fce97a; --person-4t: #6b5000;
+    --person-5: #c8e8f8; --person-5t: #1a5080;
+    --person-6: #f0d0f0; --person-6t: #5a1a5a;
+    --person-7: #d0f0d0; --person-7t: #1a501a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, #e8d5c4 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 0 80px;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    position: sticky; top: 0; z-index: 100;
+    display: flex;
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    box-shadow: 0 2px 8px rgba(100,60,40,0.06);
+  }
+  .tab-btn {
+    flex: 1; border: none; background: none;
+    padding: 13px 4px 11px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  .tab-btn.active { color: var(--pink-dark); border-bottom-color: var(--pink-dark); }
+  .tab-badge {
+    background: var(--pink); color: #6b1a30;
+    font-size: 10px; font-weight: 900;
+    padding: 1px 6px; border-radius: 99px;
+    font-family: 'Noto Sans TC', sans-serif;
+    display: none;
+  }
+  .tab-badge.show { display: inline-block; }
+
+  /* ── Pages ── */
+  .page { display: none; padding: 16px 14px; }
+  .page.active { display: block; }
+
+  /* ── Section title ── */
+  .sec-title {
+    display: flex; align-items: center; gap: 10px;
+    margin: 4px 0 14px;
+  }
+  .sec-title .icon { font-size: 18px; }
+  .sec-title .label {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 15px; font-weight: 900; color: var(--brown);
+  }
+  .sec-title .line {
+    flex: 1; height: 2px;
+    background: repeating-linear-gradient(to right, var(--pink) 0, var(--pink) 5px, transparent 5px, transparent 9px);
+  }
+
+  /* ── Form Card ── */
+  .form-card {
+    background: var(--surface);
+    border-radius: 18px;
+    padding: 16px 18px;
+    border: 2px solid var(--border);
+    box-shadow: 0 3px 12px rgba(100,60,40,0.07);
+    margin-bottom: 12px;
+  }
+
+  .field { margin-bottom: 12px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    display: block; margin-bottom: 5px; letter-spacing: 0.5px;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 10px 13px;
+    border: 1.5px solid var(--border); border-radius: 11px;
+    font-size: 14px; font-family: 'Noto Sans TC', sans-serif;
+    background: var(--cream); color: var(--text);
+    outline: none; transition: border-color 0.15s;
+    -webkit-appearance: none; appearance: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--pink-dark);
+  }
+  .field textarea { resize: none; height: 68px; line-height: 1.6; font-size: 13px; }
+
+  .row2 { display: flex; gap: 10px; }
+  .row2 .field { flex: 1; }
+
+  /* 數量 stepper */
+  .stepper {
+    display: flex; align-items: center; gap: 0;
+    border: 1.5px solid var(--border); border-radius: 11px;
+    overflow: hidden; background: var(--cream);
+    transition: border-color 0.15s;
+  }
+  .stepper:focus-within { border-color: var(--pink-dark); }
+  .step-btn {
+    width: 40px; height: 42px; border: none; background: none;
+    font-size: 20px; color: var(--pink-dark); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.12s; flex-shrink: 0;
+  }
+  .step-btn:active { background: var(--pink); }
+  .step-val {
+    flex: 1; text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px; font-weight: 700; color: var(--brown);
+    border: none; background: none; outline: none;
+  }
+
+  /* 代購人 chips */
+  .person-chips {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;
+  }
+  .person-chip {
+    padding: 5px 12px; border-radius: 99px;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer; border: 2px solid transparent;
+    transition: all 0.13s;
+    font-family: 'Zen Maru Gothic', sans-serif;
+  }
+  .person-chip.selected {
+    border-color: var(--brown);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .person-chip-add {
+    padding: 5px 12px; border-radius: 99px;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer; border: 2px dashed var(--border);
+    background: var(--cream); color: var(--muted);
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.13s;
+  }
+  .person-chip-add:hover { border-color: var(--pink-dark); color: var(--pink-dark); }
+
+  .person-input-row {
+    display: none; gap: 8px; align-items: center; margin-top: 8px;
+  }
+  .person-input-row.show { display: flex; }
+  .person-input-row input {
+    flex: 1; padding: 8px 12px;
+    border: 1.5px solid var(--pink-dark); border-radius: 10px;
+    font-size: 13px; font-family: 'Noto Sans TC', sans-serif;
+    background: var(--cream); color: var(--text); outline: none;
+  }
+  .person-input-row button {
+    padding: 8px 14px; border-radius: 10px;
+    border: none; background: var(--pink-dark); color: white;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    white-space: nowrap;
+  }
+
+  /* 緊急/重要 toggle */
+  .priority-row { display: flex; gap: 8px; }
+  .priority-btn {
+    flex: 1; padding: 9px 8px; border-radius: 11px;
+    border: 2px solid var(--border); background: var(--cream);
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif; color: var(--muted);
+    transition: all 0.13s; text-align: center;
+  }
+  .priority-btn.active.urgent { border-color: #f87171; background: #fff0f0; color: #c03030; }
+  .priority-btn.active.important { border-color: var(--orange); background: #fff8ee; color: #a06000; }
+  .priority-btn.active.normal { border-color: var(--mint-dark); background: #f0fff8; color: var(--mint-dark); }
+
+  /* 提交按鈕 */
+  .submit-btn {
+    width: 100%; padding: 13px;
+    background: var(--pink-dark); color: white;
+    border: none; border-radius: 12px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 15px; font-weight: 900;
+    cursor: pointer; transition: opacity 0.15s;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+  .submit-btn:active { opacity: 0.85; }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── 清單頁 ── */
+  .list-toolbar {
+    display: flex; gap: 8px; margin-bottom: 14px;
+    align-items: center;
+  }
+  .filter-tabs {
+    display: flex; gap: 6px; overflow-x: auto; flex: 1;
+    scrollbar-width: none; padding-bottom: 2px;
+  }
+  .filter-tabs::-webkit-scrollbar { display: none; }
+  .filter-tab {
+    flex-shrink: 0; padding: 5px 12px; border-radius: 99px;
+    border: 1.5px solid var(--border); background: white;
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+    white-space: nowrap; transition: all 0.13s;
+  }
+  .filter-tab.active { background: var(--pink-dark); border-color: var(--pink-dark); color: white; }
+
+  /* 人物群組標題 */
+  .person-group { margin-bottom: 18px; }
+  .person-group-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .person-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .person-group-name {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 14px; font-weight: 900; color: var(--brown);
+  }
+  .person-group-count {
+    font-size: 11px; color: var(--muted);
+    background: var(--cream); border: 1.5px solid var(--border);
+    padding: 1px 8px; border-radius: 99px;
+  }
+  .person-group-subtotal {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 700; color: var(--muted);
+  }
+
+  /* 代購項目卡片 */
+  .proxy-card {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    border: 2px solid var(--border);
+    box-shadow: 0 2px 8px rgba(100,60,40,0.06);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.15s;
+  }
+  .proxy-card.done {
+    opacity: 0.55;
+    border-style: dashed;
+  }
+  .proxy-card.done .item-name { text-decoration: line-through; color: var(--muted); }
+
+  .proxy-card-accent {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+  }
+
+  .card-top {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding-left: 10px;
+  }
+
+  .status-circle {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 2px solid var(--border); background: white;
+    flex-shrink: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; transition: all 0.15s;
+    margin-top: 2px;
+  }
+  .status-circle:hover { border-color: var(--pink-dark); }
+  .proxy-card.done .status-circle { background: var(--mint-dark); border-color: var(--mint-dark); color: white; }
+  .proxy-card.searching .status-circle { background: var(--yellow); border-color: #c0a000; }
+  .proxy-card.unavailable .status-circle { background: var(--border); border-color: var(--muted); color: var(--muted); }
+
+  .card-main { flex: 1; min-width: 0; }
+  .item-name {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 14px; font-weight: 900; color: var(--brown);
+    margin-bottom: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .item-meta {
+    font-size: 11px; color: var(--muted); line-height: 1.6;
+  }
+  .item-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
+  .item-tag {
+    font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 99px;
+    white-space: nowrap;
+  }
+
+  .card-right { text-align: right; flex-shrink: 0; }
+  .item-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; font-weight: 700; color: var(--brown);
+  }
+  .item-qty {
+    font-size: 11px; color: var(--muted); margin-top: 2px;
+  }
+
+  /* 狀態切換按鈕列 */
+  .card-actions {
+    display: flex; gap: 6px; margin-top: 10px;
+    padding-left: 34px;
+  }
+  .act-btn {
+    padding: 4px 10px; border-radius: 99px;
+    font-size: 10px; font-weight: 700;
+    border: 1.5px solid var(--border);
+    background: white; color: var(--muted);
+    cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.13s; white-space: nowrap;
+  }
+  .act-btn:hover { border-color: var(--pink-dark); color: var(--pink-dark); }
+  .act-btn.danger:hover { border-color: var(--red); color: var(--red); }
+  .act-btn.active-found { background: #fffbee; border-color: #c0a000; color: #7a6000; }
+  .act-btn.active-done { background: #f0fff8; border-color: var(--mint-dark); color: var(--mint-dark); }
+  .act-btn.active-na { background: #f5f5f5; border-color: var(--muted); color: var(--muted); }
+
+  /* ── 帳單頁 ── */
+  .bill-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border: 2px solid var(--border);
+    box-shadow: 0 3px 10px rgba(100,60,40,0.07);
+  }
+  .bill-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .bill-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 16px; font-weight: 900;
+    flex-shrink: 0;
+  }
+  .bill-person-name {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 16px; font-weight: 900; color: var(--brown);
+  }
+  .bill-items-count { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  .bill-paid-toggle {
+    margin-left: auto; padding: 5px 12px;
+    border-radius: 99px; border: 2px solid var(--border);
+    background: white; font-size: 11px; font-weight: 700;
+    cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+    color: var(--muted); transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .bill-paid-toggle.paid { background: #f0fff8; border-color: var(--mint-dark); color: var(--mint-dark); }
+
+  .bill-rows { border-top: 1px dashed var(--border); margin-bottom: 10px; }
+  .bill-row {
+    display: flex; align-items: center;
+    padding: 8px 0; border-bottom: 1px dashed var(--border);
+    gap: 8px;
+  }
+  .bill-row:last-child { border-bottom: none; }
+  .bill-row-name { flex: 1; font-size: 13px; color: var(--text); }
+  .bill-row-qty { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .bill-row-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 700; color: var(--brown);
+    white-space: nowrap;
+  }
+  .bill-row.not-bought { opacity: 0.4; }
+
+  .bill-summary {
+    background: var(--cream); border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .bill-sum-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--muted); padding: 3px 0;
+  }
+  .bill-sum-row.total { font-size: 15px; color: var(--brown); font-weight: 900; margin-top: 4px; }
+  .bill-sum-row.total .val {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--pink-dark);
+  }
+
+  .copy-bill-btn {
+    width: 100%; margin-top: 10px;
+    padding: 9px;
+    border: 2px solid var(--mint-dark); background: white;
+    border-radius: 10px; font-size: 12px; font-weight: 700;
+    color: var(--mint-dark); cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.15s;
+  }
+  .copy-bill-btn:hover { background: #f0fff8; }
+
+  /* 總覽卡片 */
+  .overview-card {
+    background: linear-gradient(135deg, var(--pink-dark), #c06080);
+    border-radius: 18px; padding: 16px 20px; margin-bottom: 14px;
+    color: white;
+  }
+  .ov-title { font-family: 'Zen Maru Gothic', sans-serif; font-size: 13px; font-weight: 700; opacity: 0.85; margin-bottom: 10px; }
+  .ov-row { display: flex; gap: 12px; }
+  .ov-item { flex: 1; }
+  .ov-num { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; }
+  .ov-label { font-size: 10px; opacity: 0.75; margin-top: 2px; }
+
+  /* ── Empty ── */
+  .empty-state {
+    text-align: center; color: var(--muted);
+    padding: 48px 0 32px;
+  }
+  .empty-icon { font-size: 44px; margin-bottom: 10px; }
+  .empty-text { font-size: 14px; }
+  .empty-sub { font-size: 12px; margin-top: 6px; opacity: 0.7; }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--brown); color: white;
+    font-size: 13px; font-weight: 700;
+    padding: 9px 22px; border-radius: 99px;
+    opacity: 0; transition: all 0.25s;
+    pointer-events: none; white-space: nowrap; z-index: 999;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── 緊急標示 ── */
+  .urgent-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #f87171; flex-shrink: 0; display: inline-block;
+    margin-right: 3px; vertical-align: middle;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── Note ── */
+  .note {
+    background: #fff8e6; border-left: 4px solid var(--yellow);
+    border-radius: 0 12px 12px 0; padding: 10px 14px;
+    font-size: 12px; color: #7a6020; line-height: 1.7;
+    margin-bottom: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ── Tab Bar ── -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('add')">✏️ 新增</button>
+    <button class="tab-btn" onclick="switchTab('list')">
+      📋 清單
+      <span class="tab-badge" id="pendingBadge"></span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('bill')">💴 帳單</button>
+  </div>
+
+  <!-- ══════════════════════════════════
+       Tab 1：新增
+  ══════════════════════════════════ -->
+  <div class="page active" id="page-add">
+
+    <div style="height:14px"></div>
+    <div class="sec-title">
+      <span class="icon">🛍️</span>
+      <span class="label">新增代購項目</span>
+      <div class="line"></div>
+    </div>
+
+    <div class="form-card">
+
+      <!-- 商品名稱 -->
+      <div class="field">
+        <label>商品名稱 *</label>
+        <input type="text" id="fName" placeholder="例：DHC 膠原蛋白錠、ちいかわ 公主娃娃…">
+      </div>
+
+      <!-- 代購人 -->
+      <div class="field">
+        <label>代購人（幫誰買）*</label>
+        <div class="person-chips" id="personChips"></div>
+        <div class="person-input-row" id="personInputRow">
+          <input type="text" id="personNameInput" placeholder="輸入姓名或暱稱" maxlength="10">
+          <button onclick="confirmAddPerson()">＋ 新增</button>
+        </div>
+      </div>
+
+      <!-- 數量 + 預期價格 -->
+      <div class="row2">
+        <div class="field">
+          <label>數量 *</label>
+          <div class="stepper">
+            <button class="step-btn" onclick="stepQty(-1)">－</button>
+            <input class="step-val" type="number" id="fQty" value="1" min="1" max="99" inputmode="numeric">
+            <button class="step-btn" onclick="stepQty(1)">＋</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>預期價格（¥ JPY）</label>
+          <input type="number" id="fPrice" placeholder="0" inputmode="numeric">
+        </div>
+      </div>
+
+      <!-- 店家 -->
+      <div class="field">
+        <label>購買地點 / 店家</label>
+        <input type="text" id="fStore" placeholder="例：松本清、ちいかわらんど 梅田…">
+      </div>
+
+      <!-- 備註（尺寸、顏色） -->
+      <div class="field">
+        <label>備註（顏色・尺寸・款式…）</label>
+        <textarea id="fNote" placeholder="例：要粉色、M 號、不要有字款&#10;可以附圖片連結或商品頁 URL"></textarea>
+      </div>
+
+      <!-- 優先度 -->
+      <div class="field">
+        <label>優先度</label>
+        <div class="priority-row">
+          <button class="priority-btn urgent" id="pri-urgent" onclick="setPriority('urgent')">🔴 緊急必買</button>
+          <button class="priority-btn important active important" id="pri-important" onclick="setPriority('important')">🟡 想要</button>
+          <button class="priority-btn normal" id="pri-normal" onclick="setPriority('normal')">🟢 有就買</button>
+        </div>
+      </div>
+
+      <!-- 是否需代墊款 -->
+      <div class="field">
+        <label>付款方式</label>
+        <select id="fPayment">
+          <option value="advance">💴 幫我先墊（回台後還你）</option>
+          <option value="paid">✅ 我已付款給你</option>
+          <option value="gift">🎁 不用還（送的）</option>
+        </select>
+      </div>
+
+      <button class="submit-btn" onclick="addItem()">＋ 加入清單</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       Tab 2：清單
+  ══════════════════════════════════ -->
+  <div class="page" id="page-list">
+
+    <div style="height:14px"></div>
+
+    <!-- 篩選 -->
+    <div class="list-toolbar">
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" data-filter="all" onclick="setFilter('all',this)">全部</button>
+        <button class="filter-tab" data-filter="pending" onclick="setFilter('pending',this)">⏳ 待買</button>
+        <button class="filter-tab" data-filter="searching" onclick="setFilter('searching',this)">👀 找到了</button>
+        <button class="filter-tab" data-filter="done" onclick="setFilter('done',this)">✅ 已購買</button>
+        <button class="filter-tab" data-filter="unavailable" onclick="setFilter('unavailable',this)">😢 缺貨</button>
+      </div>
+    </div>
+
+    <div id="listContainer"></div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       Tab 3：帳單
+  ══════════════════════════════════ -->
+  <div class="page" id="page-bill">
+    <div style="height:14px"></div>
+
+    <div class="note">
+      💡 只計算「已購買」項目的金額，點擊「已收款」標記後會以刪除線顯示
+    </div>
+
+    <div id="billContainer"></div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════
+// 資料層
+// ════════════════════════════════════════
+const STORE_KEY  = 'proxy_list_v1';
+const PERSON_KEY = 'proxy_persons_v1';
+const RATE_KEY   = 'jpy_rate_v1';   // 與 jpyrate.html 共用
+
+let items   = [];
+let persons = [];
+let currentFilter = 'all';
+let selectedPerson = null;
+let currentPriority = 'important';
+
+const PERSON_COLORS = [
+  { bg: '#f5b8c8', text: '#7a1a38' },
+  { bg: '#b8e8d8', text: '#1a5e48' },
+  { bg: '#d4c8f0', text: '#3d2080' },
+  { bg: '#ffd4a8', text: '#7a3800' },
+  { bg: '#fce97a', text: '#6b5000' },
+  { bg: '#c8e8f8', text: '#1a5080' },
+  { bg: '#f0d0f0', text: '#5a1a5a' },
+  { bg: '#d0f0d0', text: '#1a501a' },
+];
+
+function getPersonColor(name) {
+  const idx = persons.indexOf(name) % PERSON_COLORS.length;
+  return PERSON_COLORS[idx < 0 ? 0 : idx];
+}
+
+function getRate() {
+  try {
+    const saved = localStorage.getItem(RATE_KEY);
+    if (saved) return JSON.parse(saved).rate || 0.21;
+  } catch(e){}
+  return 0.21;
+}
+
+function save() {
+  localStorage.setItem(STORE_KEY,  JSON.stringify(items));
+  localStorage.setItem(PERSON_KEY, JSON.stringify(persons));
+}
+
+function load() {
+  try { items   = JSON.parse(localStorage.getItem(STORE_KEY))  || []; } catch(e){ items = []; }
+  try { persons = JSON.parse(localStorage.getItem(PERSON_KEY)) || []; } catch(e){ persons = []; }
+}
+
+function fmt(n) { return Math.round(n).toLocaleString('zh-TW'); }
+
+// ════════════════════════════════════════
+// Tab 切換
+// ════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.textContent.trim().startsWith(
+      tab === 'add' ? '✏️' : tab === 'list' ? '📋' : '💴'
+    )) b.classList.add('active');
+  });
+  if (tab === 'list') renderList();
+  if (tab === 'bill') renderBill();
+}
+
+// ════════════════════════════════════════
+// 代購人管理
+// ════════════════════════════════════════
+function renderPersonChips() {
+  const container = document.getElementById('personChips');
+  container.innerHTML = '';
+
+  persons.forEach(name => {
+    const c = getPersonColor(name);
+    const chip = document.createElement('div');
+    chip.className = 'person-chip' + (selectedPerson === name ? ' selected' : '');
+    chip.style.background = c.bg;
+    chip.style.color       = c.text;
+    chip.textContent = name;
+    chip.onclick = () => {
+      selectedPerson = selectedPerson === name ? null : name;
+      renderPersonChips();
+    };
+    container.appendChild(chip);
+  });
+
+  // 新增按鈕
+  const addBtn = document.createElement('div');
+  addBtn.className = 'person-chip-add';
+  addBtn.textContent = '＋ 新增代購人';
+  addBtn.onclick = () => {
+    const row = document.getElementById('personInputRow');
+    row.classList.toggle('show');
+    if (row.classList.contains('show')) document.getElementById('personNameInput').focus();
+  };
+  container.appendChild(addBtn);
+}
+
+function confirmAddPerson() {
+  const input = document.getElementById('personNameInput');
+  const name = input.value.trim();
+  if (!name) return;
+  if (persons.includes(name)) { showToast('此代購人已存在'); return; }
+  persons.push(name);
+  selectedPerson = name;
+  save();
+  input.value = '';
+  document.getElementById('personInputRow').classList.remove('show');
+  renderPersonChips();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('personNameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmAddPerson();
+  });
+});
+
+// ════════════════════════════════════════
+// 優先度
+// ════════════════════════════════════════
+function setPriority(p) {
+  currentPriority = p;
+  ['urgent','important','normal'].forEach(id => {
+    const btn = document.getElementById('pri-' + id);
+    btn.classList.toggle('active', id === p);
+  });
+}
+
+// ════════════════════════════════════════
+// 數量 stepper
+// ════════════════════════════════════════
+function stepQty(delta) {
+  const input = document.getElementById('fQty');
+  const val = Math.max(1, Math.min(99, (parseInt(input.value) || 1) + delta));
+  input.value = val;
+}
+
+// ════════════════════════════════════════
+// 新增項目
+// ════════════════════════════════════════
+function addItem() {
+  const name  = document.getElementById('fName').value.trim();
+  const qty   = parseInt(document.getElementById('fQty').value) || 1;
+  const price = parseFloat(document.getElementById('fPrice').value) || 0;
+  const store = document.getElementById('fStore').value.trim();
+  const note  = document.getElementById('fNote').value.trim();
+  const payment = document.getElementById('fPayment').value;
+
+  if (!name) { showToast('請填寫商品名稱'); return; }
+  if (!selectedPerson) { showToast('請選擇代購人'); return; }
+
+  const item = {
+    id: Date.now(),
+    name, qty, price, store, note, payment,
+    person: selectedPerson,
+    priority: currentPriority,
+    status: 'pending',   // pending | searching | done | unavailable
+    paidBack: false,
+    createdAt: Date.now()
+  };
+
+  items.unshift(item);
+  save();
+
+  // 清空表單
+  document.getElementById('fName').value   = '';
+  document.getElementById('fQty').value    = 1;
+  document.getElementById('fPrice').value  = '';
+  document.getElementById('fStore').value  = '';
+  document.getElementById('fNote').value   = '';
+  document.getElementById('fPayment').value = 'advance';
+  setPriority('important');
+
+  updateBadge();
+  showToast(`✓ 已加入 ${selectedPerson} 的代購清單`);
+}
+
+// ════════════════════════════════════════
+// 篩選
+// ════════════════════════════════════════
+function setFilter(filter, el) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+// ════════════════════════════════════════
+// 渲染清單
+// ════════════════════════════════════════
+const STATUS_MAP = {
+  pending:     { icon: '',   label: '待買',  cls: '' },
+  searching:   { icon: '👀', label: '找到了', cls: 'searching' },
+  done:        { icon: '✓',  label: '已購買', cls: 'done' },
+  unavailable: { icon: '✕',  label: '缺貨',  cls: 'unavailable' },
+};
+
+const PRIORITY_LABEL = {
+  urgent:    { icon: '🔴', label: '緊急必買' },
+  important: { icon: '🟡', label: '想要' },
+  normal:    { icon: '🟢', label: '有就買' },
+};
+
+const PAYMENT_LABEL = {
+  advance: '💴 代墊款',
+  paid:    '✅ 已付款',
+  gift:    '🎁 送的',
+};
+
+function renderList() {
+  const container = document.getElementById('listContainer');
+
+  let filtered = items;
+  if (currentFilter !== 'all') {
+    filtered = items.filter(i => i.status === currentFilter);
+  }
+
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">${currentFilter === 'all' ? '🛍️' : '🔍'}</div>
+      <div class="empty-text">${currentFilter === 'all' ? '還沒有代購項目' : '這個狀態沒有項目'}</div>
+      <div class="empty-sub">${currentFilter === 'all' ? '切換到「新增」Tab 加入第一筆' : '換個篩選試試'}</div>
+    </div>`;
+    return;
+  }
+
+  // 以代購人分組
+  const groups = {};
+  filtered.forEach(item => {
+    if (!groups[item.person]) groups[item.person] = [];
+    groups[item.person].push(item);
+  });
+
+  let html = '';
+  Object.entries(groups).forEach(([person, groupItems]) => {
+    const c = getPersonColor(person);
+    const total = groupItems.filter(i => i.status === 'done').reduce((s, i) => s + i.price * i.qty, 0);
+    const doneCount = groupItems.filter(i => i.status === 'done').length;
+
+    html += `<div class="person-group">
+      <div class="person-group-header">
+        <div class="person-dot" style="background:${c.bg};border:2px solid ${c.text}40"></div>
+        <div class="person-group-name">${person}</div>
+        <div class="person-group-count">${doneCount}/${groupItems.length} 已完成</div>
+        ${total > 0 ? `<div class="person-group-subtotal">¥${fmt(total)}</div>` : ''}
+      </div>`;
+
+    groupItems.forEach(item => {
+      const st = STATUS_MAP[item.status];
+      const pr = PRIORITY_LABEL[item.priority];
+      const isUrgent = item.priority === 'urgent';
+
+      html += `<div class="proxy-card ${st.cls}" id="card-${item.id}">
+        <div class="proxy-card-accent" style="background:${c.bg}"></div>
+        <div class="card-top">
+          <div class="status-circle" onclick="cycleStatus(${item.id})" title="點擊切換狀態">${st.icon}</div>
+          <div class="card-main">
+            <div class="item-name">
+              ${isUrgent && item.status === 'pending' ? '<span class="urgent-dot"></span>' : ''}${item.name}
+            </div>
+            <div class="item-meta">
+              ${item.store ? `📍 ${item.store}` : ''}
+              ${item.store && item.note ? '　' : ''}
+              ${item.note ? `📝 ${item.note}` : ''}
+            </div>
+            <div class="item-tags">
+              <span class="item-tag" style="background:${c.bg};color:${c.text}">${person}</span>
+              <span class="item-tag" style="background:#f5f5f5;color:#7a6050">${pr.icon} ${pr.label}</span>
+              <span class="item-tag" style="background:#f0f0f0;color:#7a6050">${PAYMENT_LABEL[item.payment]}</span>
+            </div>
+          </div>
+          <div class="card-right">
+            ${item.price > 0
+              ? `<div class="item-price">¥${fmt(item.price * item.qty)}</div>
+                 <div class="item-qty">¥${fmt(item.price)} × ${item.qty}</div>`
+              : `<div class="item-qty">× ${item.qty}</div>`
+            }
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="act-btn ${item.status === 'searching' ? 'active-found' : ''}"
+            onclick="setStatus(${item.id},'searching')">👀 找到了</button>
+          <button class="act-btn ${item.status === 'done' ? 'active-done' : ''}"
+            onclick="setStatus(${item.id},'done')">✅ 已買</button>
+          <button class="act-btn ${item.status === 'unavailable' ? 'active-na' : ''}"
+            onclick="setStatus(${item.id},'unavailable')">😢 缺貨</button>
+          <button class="act-btn danger" onclick="deleteItem(${item.id})">🗑</button>
+        </div>
+      </div>`;
+    });
+
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+// ════════════════════════════════════════
+// 狀態管理
+// ════════════════════════════════════════
+function cycleStatus(id) {
+  const cycle = ['pending', 'searching', 'done', 'unavailable'];
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  const idx = cycle.indexOf(item.status);
+  item.status = cycle[(idx + 1) % cycle.length];
+  save();
+  updateBadge();
+  renderList();
+}
+
+function setStatus(id, status) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.status = item.status === status ? 'pending' : status;
+  save();
+  updateBadge();
+  renderList();
+}
+
+function deleteItem(id) {
+  if (!confirm('確定刪除此代購項目？')) return;
+  items = items.filter(i => i.id !== id);
+  save();
+  updateBadge();
+  renderList();
+}
+
+// ════════════════════════════════════════
+// 帳單
+// ════════════════════════════════════════
+const paidBackMap = {};   // person => true/false
+
+function renderBill() {
+  const container = document.getElementById('billContainer');
+  const rate = getRate();
+
+  // 彙整每位代購人的資料
+  const personMap = {};
+  items.forEach(item => {
+    if (!personMap[item.person]) personMap[item.person] = [];
+    personMap[item.person].push(item);
+  });
+
+  if (!Object.keys(personMap).length) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">💴</div>
+      <div class="empty-text">還沒有代購項目</div>
+      <div class="empty-sub">新增代購後帳單會自動出現</div>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+
+  Object.entries(personMap).forEach(([person, personItems]) => {
+    const c = getPersonColor(person);
+    const doneItems = personItems.filter(i => i.status === 'done' && i.payment !== 'gift');
+    const advanceItems = doneItems.filter(i => i.payment === 'advance');
+    const totalJpy = doneItems.reduce((s, i) => s + i.price * i.qty, 0);
+    const advanceJpy = advanceItems.reduce((s, i) => s + i.price * i.qty, 0);
+    const totalTwd = Math.round(totalJpy * rate);
+    const advanceTwd = Math.round(advanceJpy * rate);
+    const paid = paidBackMap[person] || false;
+    const initial = person.charAt(0);
+    const allCount = personItems.length;
+    const doneCount = personItems.filter(i => i.status === 'done').length;
+
+    html += `<div class="bill-card">
+      <div class="bill-header">
+        <div class="bill-avatar" style="background:${c.bg};color:${c.text}">${initial}</div>
+        <div>
+          <div class="bill-person-name">${person}</div>
+          <div class="bill-items-count">${doneCount}/${allCount} 項已購買</div>
+        </div>
+        <button class="bill-paid-toggle ${paid ? 'paid' : ''}"
+          onclick="togglePaid('${person}', this)">${paid ? '✅ 已收款' : '⬜ 未收款'}</button>
+      </div>
+
+      <div class="bill-rows">`;
+
+    personItems.forEach(item => {
+      const isDone = item.status === 'done';
+      const rowJpy = item.price * item.qty;
+      html += `<div class="bill-row ${!isDone ? 'not-bought' : ''}">
+        <div class="bill-row-name">${item.name}</div>
+        <div class="bill-row-qty">×${item.qty}　${PAYMENT_LABEL[item.payment]}</div>
+        <div class="bill-row-price">${item.price > 0 ? '¥' + fmt(rowJpy) : '—'}</div>
+      </div>`;
+    });
+
+    html += `</div>
+
+      <div class="bill-summary">
+        ${totalJpy > 0 ? `
+        <div class="bill-sum-row">
+          <span>已購買總計（JPY）</span>
+          <span class="val" style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#7a4f3a">¥${fmt(totalJpy)}</span>
+        </div>
+        <div class="bill-sum-row">
+          <span>換算台幣（匯率 ${rate.toFixed(4)}）</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#7a4f3a">≈ NT$${fmt(totalTwd)}</span>
+        </div>` : ''}
+        ${advanceJpy > 0 ? `
+        <div class="bill-sum-row total">
+          <span>需還款（代墊款）</span>
+          <span class="val">NT$${fmt(advanceTwd)}</span>
+        </div>` : `
+        <div class="bill-sum-row">
+          <span>無需還款項目</span>
+          <span>—</span>
+        </div>`}
+      </div>
+
+      <button class="copy-bill-btn" onclick="copyBill('${person}')">📋 複製對帳訊息</button>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function togglePaid(person, btn) {
+  paidBackMap[person] = !paidBackMap[person];
+  btn.className = 'bill-paid-toggle ' + (paidBackMap[person] ? 'paid' : '');
+  btn.textContent = paidBackMap[person] ? '✅ 已收款' : '⬜ 未收款';
+}
+
+function copyBill(person) {
+  const rate = getRate();
+  const personItems = items.filter(i => i.person === person && i.status === 'done');
+  if (!personItems.length) { showToast('這位代購人還沒有已購買的項目'); return; }
+
+  const lines = personItems.map(i => {
+    const total = i.price * i.qty;
+    const payLabel = i.payment === 'advance' ? '（需還款）' : i.payment === 'gift' ? '（送你的 🎁）' : '（已付款）';
+    return `• ${i.name} × ${i.qty}${i.price > 0 ? `  ¥${fmt(total)}` : ''}  ${payLabel}`;
+  }).join('\n');
+
+  const advanceTotal = personItems.filter(i => i.payment === 'advance').reduce((s, i) => s + i.price * i.qty, 0);
+  const twdTotal = Math.round(advanceTotal * rate);
+
+  let msg = `🛍️ ${person} 的代購清單\n\n${lines}`;
+  if (advanceTotal > 0) {
+    msg += `\n\n💴 代墊款合計：¥${fmt(advanceTotal)} ≈ NT$${fmt(twdTotal)}\n（匯率參考 ${rate.toFixed(4)}）`;
+  }
+  msg += '\n\n感謝你的信任 🙏';
+
+  navigator.clipboard.writeText(msg).then(() => showToast('✓ 對帳訊息已複製！'));
+}
+
+// ════════════════════════════════════════
+// Badge & Toast
+// ════════════════════════════════════════
+function updateBadge() {
+  const pending = items.filter(i => i.status === 'pending' || i.status === 'searching').length;
+  const badge = document.getElementById('pendingBadge');
+  badge.textContent = pending;
+  badge.classList.toggle('show', pending > 0);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ════════════════════════════════════════
+// Init
+// ════════════════════════════════════════
+load();
+renderPersonChips();
+updateBadge();
+</script>
+</body>
+</html>
