@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ちいかわ GW 採購清單 5/1〜5/5</title>
+<title>ちいかわ 6月 採購清單 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -16,6 +16,8 @@
     --brown: #7a4f3a;
     --text: #3d2b1f;
     --white: #ffffff;
+    --sky: #bde4f5;
+    --sky-dark: #5ab3e0;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,7 +30,6 @@
     overflow-x: hidden;
   }
 
-  /* Dotted background */
   body::before {
     content: '';
     position: fixed;
@@ -57,7 +58,7 @@
 
   .header-badge {
     display: inline-block;
-    background: var(--pink-dark);
+    background: var(--sky-dark);
     color: white;
     font-family: 'Zen Maru Gothic', sans-serif;
     font-size: 11px;
@@ -77,7 +78,7 @@
   }
 
   .header h1 span {
-    color: var(--pink-dark);
+    color: var(--sky-dark);
   }
 
   .header-sub {
@@ -105,9 +106,7 @@
     margin-bottom: 14px;
   }
 
-  .section-icon {
-    font-size: 20px;
-  }
+  .section-icon { font-size: 20px; }
 
   .section-label {
     font-family: 'Zen Maru Gothic', sans-serif;
@@ -119,7 +118,7 @@
   .section-line {
     flex: 1;
     height: 2px;
-    background: repeating-linear-gradient(to right, var(--pink) 0px, var(--pink) 6px, transparent 6px, transparent 10px);
+    background: repeating-linear-gradient(to right, var(--sky) 0px, var(--sky) 6px, transparent 6px, transparent 10px);
   }
 
   /* Cards */
@@ -163,9 +162,14 @@
     background: linear-gradient(135deg, #fff 60%, #fffbee);
   }
 
-  .card.warning {
-    border-color: #f5c842;
-    background: linear-gradient(135deg, #fffcee 0%, #fff 80%);
+  .card.movie {
+    border-color: var(--sky);
+    background: linear-gradient(135deg, #fff 60%, #f0f9ff);
+  }
+
+  .card.donki {
+    border-color: #ffcc00;
+    background: linear-gradient(135deg, #fff 60%, #fffde6);
   }
 
   .card-emoji {
@@ -175,10 +179,7 @@
     margin-top: 2px;
   }
 
-  .card-body {
-    flex: 1;
-    min-width: 0;
-  }
+  .card-body { flex: 1; min-width: 0; }
 
   .card-name {
     font-family: 'Zen Maru Gothic', sans-serif;
@@ -209,6 +210,8 @@
   .tag-purple { background: var(--lavender); color: #3d2080; }
   .tag-yellow { background: var(--yellow); color: #6b5000; }
   .tag-red { background: #ff8888; color: white; }
+  .tag-sky { background: var(--sky); color: #1a4a6e; }
+  .tag-donki { background: #ffcc00; color: #333; }
 
   .ribbon {
     position: absolute;
@@ -225,6 +228,8 @@
 
   .ribbon.green { background: #5abf9a; }
   .ribbon.purple { background: #9a80e0; }
+  .ribbon.blue { background: var(--sky-dark); }
+  .ribbon.donki { background: #e6aa00; color: #222; }
 
   /* Checkbox */
   .checklist {
@@ -247,23 +252,23 @@
     user-select: none;
   }
 
-  .check-item:hover { border-color: var(--pink); }
+  .check-item:hover { border-color: var(--sky); }
 
   .check-item.checked {
-    background: #fff0f4;
-    border-color: var(--pink-dark);
+    background: #f0f9ff;
+    border-color: var(--sky-dark);
     opacity: 0.7;
   }
 
   .check-item.checked .check-text {
     text-decoration: line-through;
-    color: #b08080;
+    color: #80a0b0;
   }
 
   .check-box {
     width: 22px;
     height: 22px;
-    border: 2.5px solid var(--pink-dark);
+    border: 2.5px solid var(--sky-dark);
     border-radius: 7px;
     flex-shrink: 0;
     display: flex;
@@ -275,8 +280,8 @@
   }
 
   .check-item.checked .check-box {
-    background: var(--pink-dark);
-    border-color: var(--pink-dark);
+    background: var(--sky-dark);
+    border-color: var(--sky-dark);
     color: white;
   }
 
@@ -289,7 +294,7 @@
   .check-sub {
     margin-left: auto;
     font-size: 11px;
-    color: #b08080;
+    color: #80a0b0;
     white-space: nowrap;
   }
 
@@ -312,7 +317,7 @@
   }
 
   .progress-bar-bg {
-    background: #f0e8e0;
+    background: #e0f0f8;
     border-radius: 99px;
     height: 12px;
     overflow: hidden;
@@ -320,7 +325,7 @@
 
   .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(to right, var(--pink), var(--pink-dark));
+    background: linear-gradient(to right, var(--sky), var(--sky-dark));
     border-radius: 99px;
     transition: width 0.4s ease;
     width: 0%;
@@ -329,7 +334,7 @@
   .progress-count {
     margin-top: 8px;
     font-size: 12px;
-    color: #a07060;
+    color: #5090b0;
   }
 
   /* Note box */
@@ -340,6 +345,17 @@
     padding: 12px 16px;
     font-size: 12.5px;
     color: #7a6020;
+    line-height: 1.7;
+    margin-top: 8px;
+  }
+
+  .note-blue {
+    background: #f0f9ff;
+    border-left: 4px solid var(--sky-dark);
+    border-radius: 0 14px 14px 0;
+    padding: 12px 16px;
+    font-size: 12.5px;
+    color: #1a4a6e;
     line-height: 1.7;
     margin-top: 8px;
   }
@@ -363,6 +379,7 @@
   .section:nth-child(4) { animation-delay: 0.15s; }
   .section:nth-child(5) { animation-delay: 0.2s; }
   .section:nth-child(6) { animation-delay: 0.25s; }
+  .section:nth-child(7) { animation-delay: 0.3s; }
 </style>
 </head>
 <body>
@@ -370,10 +387,10 @@
 
   <!-- Header -->
   <div class="header">
-    <div class="header-badge">2026 GW 吉伊卡哇採購指南</div>
-    <h1>吉伊卡哇<span>🐾</span></h1>
-    <div class="header-sub">5月1日〜5月5日 京都・大阪</div>
-    <div class="emoji-row">🌸🐭🐱🐰🦝</div>
+    <div class="header-badge">2026 6月 吉伊卡哇採購指南</div>
+    <h1>吉伊卡哇<span>🐠</span></h1>
+    <div class="header-sub">6月 全日本・電影前夕超旺季</div>
+    <div class="emoji-row">🎬🐭🐱🐰🌊</div>
   </div>
 
   <!-- Progress -->
@@ -385,49 +402,96 @@
     <div class="progress-count" id="progressCount">0 / 0 已入手</div>
   </div>
 
-  <!-- Section 1: 期間限定活動 -->
+  <!-- Section 1: 電影情報 -->
   <div class="section">
     <div class="section-title">
-      <span class="section-icon">🔥</span>
-      <span class="section-label">期間限定活動</span>
+      <span class="section-icon">🎬</span>
+      <span class="section-label">電影情報（7/24 公開）</span>
       <div class="section-line"></div>
     </div>
 
-    <div class="card hot">
-      <div class="ribbon">必去</div>
-      <div class="card-emoji">🎪</div>
+    <div class="card movie">
+      <div class="ribbon blue">7/24 公開</div>
+      <div class="card-emoji">🧜</div>
       <div class="card-body">
-        <div class="card-name">ちいかわぽけっと POP UP STORE</div>
+        <div class="card-name">映画ちいかわ 人魚の島のひみつ</div>
         <div class="card-desc">
-          難波OIOI 3F 活動空間<br>
-          4/18（六）〜 5/10（日）11:00〜20:00<br>
-          購買即贈「ちいぽけ オリジナルスタンプ Vol.2」<br>
-          滿 ¥2,200 再送桜の木遊戲貼紙
+          初の劇場版！原作「セイレーン編（島編）」映像化<br>
+          ちいかわ・ハチワレ・うさぎが島へ旅する長編<br>
+          制作：CygamesPictures ／ 脚本：原作者ナガノ<br>
+          🎟 6月中旬頃より前売券発売予定——要隨時確認
         </div>
-        <span class="tag tag-pink">大阪 なんば</span>
-        <span class="tag tag-red">GW期間中</span>
+        <span class="tag tag-sky">全國劇場</span>
+        <span class="tag tag-red">前売券狙い目</span>
+      </div>
+    </div>
+
+    <div class="note-blue">
+      🎞 電影周邊グッズは公開直前に大量登場！6月下旬〜映画館・常設店舖會同步推出限定商品，建議密切關注官方 X：<strong>@chiikawa_kouhou</strong>
+    </div>
+  </div>
+
+  <!-- Section 2: 期間限定 -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-icon">🔥</span>
+      <span class="section-label">期間限定（6月）</span>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="card donki">
+      <div class="ribbon donki">必買</div>
+      <div class="card-emoji">🐧</div>
+      <div class="card-body">
+        <div class="card-name">ちいかわ × ドン・キホーテ 限定コラボ</div>
+        <div class="card-desc">
+          6月6日（土）より全国ドンキ系列 約50店舗<br>
+          ドンペン帽子姿の ちいかわ・ハチワレ・うさぎ<br>
+          BIG ぬいぐるみ（¥19,800）・マスコット（¥1,980 各）<br>
+          ヒョウ柄パジャマのシーサー・くりまんじゅう 等も<br>
+          整理券配布の可能性あり・各店舗AM10:00〜
+        </div>
+        <span class="tag tag-donki">ドンキ限定</span>
+        <span class="tag tag-red">なくなり次第終了</span>
       </div>
     </div>
 
     <div class="card hot">
-      <div class="card-emoji">🎂</div>
+      <div class="ribbon">〜6/11</div>
+      <div class="card-emoji">🍔</div>
       <div class="card-body">
-        <div class="card-name">5/1 ちいかわ＆ハチワレ 生日！</div>
+        <div class="card-name">マクドナルド ハッピーセット ちいかわ 第2弾</div>
         <div class="card-desc">
-          5月1日是 ちいかわ 和 ハチワレ 的生日🎉<br>
-          常設店可能有特別活動或生日限定商品<br>
-          當天去常設店打卡感受氣氛！
+          5月29日（金）〜 6月11日（木）※なくなり次第終了<br>
+          全4種：うさぎ（クルー）・モモンガ（おもてなしリーダー）<br>
+          シーサー（マネージャー）・古本屋（クルー）<br>
+          マクドナルド公式アプリ購入券は5/29のみ必要
         </div>
-        <span class="tag tag-pink">京都・大阪 常設店</span>
+        <span class="tag tag-pink">マクド限定</span>
+        <span class="tag tag-purple">全4種</span>
+      </div>
+    </div>
+
+    <div class="card hot">
+      <div class="card-emoji">🥤</div>
+      <div class="card-body">
+        <div class="card-name">ちいかわ × リポビタンD コラボキャンペーン</div>
+        <div class="card-desc">
+          6月1日〜7月31日 全国コンビニ・薬局<br>
+          購入でちいかわオリジナルグッズ応募キャンペーン<br>
+          詳細はリポビタンD公式サイトで確認
+        </div>
+        <span class="tag tag-yellow">コンビニ</span>
+        <span class="tag tag-mint">応募キャンペーン</span>
       </div>
     </div>
   </div>
 
-  <!-- Section 2: 常設店 -->
+  <!-- Section 3: 常設店 -->
   <div class="section">
     <div class="section-title">
       <span class="section-icon">🏪</span>
-      <span class="section-label">常設店（隨時可去）</span>
+      <span class="section-label">常設店（随時可去）</span>
       <div class="section-line"></div>
     </div>
 
@@ -438,10 +502,10 @@
         <div class="card-name">ちいかわらんど 京都四条河原町店</div>
         <div class="card-desc">
           キデイランド京都四条河原町 3F<br>
-          四条烏丸から徒歩約10分<br>
-          限定商品・先行商品・常時新作入荷
+          電影前夕可能有先行限定グッズ・特設コーナー<br>
+          隨時關注店舗 X 帳號取得最新入荷情報
         </div>
-        <span class="tag tag-yellow">步行可達</span>
+        <span class="tag tag-yellow">京都</span>
       </div>
     </div>
 
@@ -451,99 +515,78 @@
       <div class="card-body">
         <div class="card-name">ちいかわらんど 大阪梅田店</div>
         <div class="card-desc">
-          大阪梅田，地鐵梅田站附近<br>
           キデイランド大阪梅田店 内<br>
-          關西最大據點，商品最齊
+          關西最大據點，電影グッズも真っ先に入荷<br>
+          6月は夏グッズ切り替え時期、新作ラッシュ
         </div>
         <span class="tag tag-yellow">大阪梅田</span>
       </div>
     </div>
 
     <div class="note">
-      ⚠️ GW 期間可能實施入店預約制（抽選 or 先着）！<br>
-      出發前請追蹤官方 X：<strong>@chiikawa_land</strong> 確認最新公告
+      ⚠️ 常設店の入店は混雑時に整理券・時間指定制になる場合があります。<br>
+      出発前に必ず <strong>@chiikawa_land</strong> の最新ツイートを確認！
     </div>
   </div>
 
-  <!-- Section 3: 娃娃類 -->
+  <!-- Section 4: 夾娃娃機新品 -->
   <div class="section">
     <div class="section-title">
       <span class="section-icon">🧸</span>
-      <span class="section-label">新出娃娃</span>
+      <span class="section-label">6月 夾娃娃機新入荷</span>
       <div class="section-line"></div>
     </div>
 
     <div class="card new">
-      <div class="ribbon">4月新出</div>
-      <div class="card-emoji">👸</div>
+      <div class="ribbon">6月入荷</div>
+      <div class="card-emoji">👶</div>
       <div class="card-body">
-        <div class="card-name">プリンセス誕生日ぬいぐるみ</div>
+        <div class="card-name">Chiikawa Baby ひんやりブランケット</div>
         <div class="card-desc">
-          ちいかわ・ハチワレ 穿公主裝<br>
-          うさぎ 穿王子裝🤴<br>
-          5/1 生日紀念限定主題，超可愛！
+          6月よりゲームセンター全国展開<br>
+          ベビー姿のちいかわたちデザイン<br>
+          夏にぴったりのさらっとした素材感
         </div>
-        <span class="tag tag-mint">夾娃娃機</span>
-        <span class="tag tag-pink">生日限定主題</span>
+        <span class="tag tag-mint">UFOキャッチャー</span>
+        <span class="tag tag-sky">夏限定テーマ</span>
       </div>
     </div>
 
     <div class="card new">
-      <div class="card-emoji">⚔️</div>
+      <div class="card-emoji">🌊</div>
       <div class="card-body">
-        <div class="card-name">討伐マスコット②</div>
+        <div class="card-name">ちいかわ ぷかぷかソフビミニフィギュア</div>
         <div class="card-desc">
-          ちいかわ・ハチワレ・うさぎ・モモンガ 全4種<br>
-          拿武器討伐敵人的人氣系列第2彈！
+          6月よりクレーンゲーム全国展開<br>
+          水に浮かべて遊べるころんとかわいいソフビ<br>
+          夏・プール・お風呂でも楽しめる！
         </div>
-        <span class="tag tag-mint">夾娃娃機</span>
-        <span class="tag tag-purple">全4種</span>
+        <span class="tag tag-mint">UFOキャッチャー</span>
+        <span class="tag tag-sky">水に浮くよ🐠</span>
       </div>
-    </div>
-
-    <div class="card new">
-      <div class="card-emoji">🟡</div>
-      <div class="card-body">
-        <div class="card-name">ぽよよんおかおボールマスコット</div>
-        <div class="card-desc">
-          圓滾滾臉型馬斯科特<br>
-          ちいかわ・ハチワレ・うさぎ 全3種<br>
-          看著就療癒的軟球系列
-        </div>
-        <span class="tag tag-mint">夾娃娃機</span>
-        <span class="tag tag-purple">全3種</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Section 4: 夾娃娃機 -->
-  <div class="section">
-    <div class="section-title">
-      <span class="section-icon">🎮</span>
-      <span class="section-label">夾娃娃機攻略（UFOキャッチャー）</span>
-      <div class="section-line"></div>
     </div>
 
     <div class="card game">
       <div class="card-emoji">📍</div>
       <div class="card-body">
-        <div class="card-name">大阪梅田エリア推薦店</div>
+        <div class="card-name">推薦ゲームセンター（大阪・京都エリア）</div>
         <div class="card-desc">
           • SEGA 梅田（梅田駅すぐ）<br>
           • Taito Station 梅田（阪急東通商店街）<br>
           • GiGO 梅田（グランフロント大阪近く）<br>
-          • Round1 難波店（なんば PARKS 内）
+          • Round1 難波店（なんば PARKS 内）<br>
+          • GIGO 京都（河原町エリア）
         </div>
         <span class="tag tag-purple">ちいかわ景品豊富</span>
       </div>
     </div>
   </div>
 
-  <!-- Section 5: 便宜買 -->
+  <!-- Section 5: 省錢採購 -->
   <div class="section">
     <div class="section-title">
       <span class="section-icon">💴</span>
-      <span class="section-label">省錢採購（100均・超市）</span>
+      <span class="section-label">省錢採購（100均・超市・コンビニ）</span>
       <div class="section-line"></div>
     </div>
 
@@ -552,9 +595,9 @@
       <div class="card-body">
         <div class="card-name">DAISO 限定ちいかわシリーズ</div>
         <div class="card-desc">
-          4/14 起全國 DAISO 陸續上架<br>
+          4月14日より全国 DAISO 陸續上架（6月も継続販売中）<br>
           全28款：文具・零錢包・缶バッジ等<br>
-          百元起跳，順手掃很划算
+          百元起跳，旅途中順手掃很划算
         </div>
         <span class="tag tag-yellow">¥110〜</span>
         <span class="tag tag-pink">DAISO限定</span>
@@ -562,20 +605,20 @@
     </div>
 
     <div class="card">
-      <div class="card-emoji">🍪</div>
+      <div class="card-emoji">🥤</div>
       <div class="card-body">
-        <div class="card-name">刺繍缶バッジビスケット②</div>
+        <div class="card-name">リポビタンD × ちいかわ 購入</div>
         <div class="card-desc">
-          5月全國超市・便利商店發售<br>
-          全13種刺繡缶バッジ隨機一個<br>
-          お菓子も玩具も一起享受！
+          6月1日〜7月31日、コンビニや薬局で購入するとキャンペーン対象<br>
+          順手買來喝，還能集點換グッズ！
         </div>
-        <span class="tag tag-yellow">超市・コンビニ</span>
+        <span class="tag tag-yellow">コンビニ・薬局</span>
+        <span class="tag tag-mint">6〜7月限定</span>
       </div>
     </div>
   </div>
 
-  <!-- Section 6: 採購 checklist -->
+  <!-- Section 6: 採購 Checklist -->
   <div class="section">
     <div class="section-title">
       <span class="section-icon">✅</span>
@@ -586,55 +629,61 @@
     <div class="checklist" id="checklist">
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box">✓</div>
-        <div class="check-text">去 ちいかわぽけっと POP UP（難波 OIOI）</div>
-        <div class="check-sub">大阪</div>
+        <div class="check-text">ドン・キホーテ ちいかわ限定グッズ（6/6〜）</div>
+        <div class="check-sub">ドンキ</div>
       </div>
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box">✓</div>
-        <div class="check-text">去 ちいかわらんど 京都四条河原町店</div>
+        <div class="check-text">マクドナルド ハッピーセット 第2弾（〜6/11）</div>
+        <div class="check-sub">マクド</div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="check-box">✓</div>
+        <div class="check-text">映画 前売券をゲット！（発売開始次第）</div>
+        <div class="check-sub">🎬 7/24</div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="check-box">✓</div>
+        <div class="check-text">ちいかわらんど 京都四条河原町店</div>
         <div class="check-sub">京都</div>
       </div>
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box">✓</div>
-        <div class="check-text">去 ちいかわらんど 大阪梅田店</div>
+        <div class="check-text">ちいかわらんど 大阪梅田店</div>
         <div class="check-sub">大阪</div>
       </div>
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box">✓</div>
-        <div class="check-text">プリンセス誕生日ぬいぐるみ（夾娃娃機）</div>
-        <div class="check-sub">公主款</div>
+        <div class="check-text">Chiikawa Baby ひんやりブランケット（UFO）</div>
+        <div class="check-sub">夾娃娃機</div>
       </div>
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box">✓</div>
-        <div class="check-text">討伐マスコット② 全4種（夾娃娃機）</div>
-        <div class="check-sub">討伐款</div>
+        <div class="check-text">ぷかぷかソフビミニフィギュア（UFO）</div>
+        <div class="check-sub">夾娃娃機</div>
       </div>
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box">✓</div>
-        <div class="check-text">ぽよよんおかおボールマスコット（夾娃娃機）</div>
-        <div class="check-sub">圓球款</div>
-      </div>
-      <div class="check-item" onclick="toggle(this)">
-        <div class="check-box">✓</div>
-        <div class="check-text">DAISO 限定ちいかわシリーズ（順手掃）</div>
+        <div class="check-text">DAISO ちいかわシリーズ（順手掃）</div>
         <div class="check-sub">¥110〜</div>
       </div>
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box">✓</div>
-        <div class="check-text">刺繍缶バッジビスケット②（超市找找）</div>
+        <div class="check-text">リポビタンD × ちいかわ キャンペーン参加</div>
         <div class="check-sub">コンビニ</div>
       </div>
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box">✓</div>
-        <div class="check-text">5/1 生日當天去常設店打卡！</div>
-        <div class="check-sub">🎂</div>
+        <div class="check-text">電影グッズ・劇場限定商品チェック（6月下旬〜）</div>
+        <div class="check-sub">🎞 映画</div>
       </div>
     </div>
   </div>
 
   <div class="footer">
-    ちいかわ 採購指南 · GW 2026<br>
-    資訊以官方公告為準 · 最新消息追蹤 @chiikawa_kouhou
+    ちいかわ 採購指南 · 2026年6月版<br>
+    資訊以官方公告為準 · 最新消息追蹤 @chiikawa_kouhou<br>
+    映画ちいかわ 人魚の島のひみつ 2026年7月24日公開
   </div>
 
 </div>
@@ -651,7 +700,6 @@
     const total = items.length;
     const done = checked.length;
     const pct = total > 0 ? Math.round(done / total * 100) : 0;
-
     document.getElementById('progressBar').style.width = pct + '%';
     document.getElementById('progressCount').textContent = done + ' / ' + total + ' 已入手 🐾';
   }
