@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>日本信用卡優惠</title>
+<title>日本信用卡優惠 2026 Q3</title>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -94,6 +94,7 @@
     background: var(--pink); color: white;
     font-family: 'Zen Maru Gothic', sans-serif;
     font-weight: 900; font-size: 14px;
+    flex-shrink: 0;
   }
 
   .card-name {
@@ -107,6 +108,7 @@
     font-size: 9px; font-weight: 700;
     padding: 3px 8px; border-radius: 6px;
     background: var(--yellow); color: #7a6020;
+    white-space: nowrap;
   }
 
   .card-issuer { font-size: 10px; color: var(--muted); margin-top: 2px; }
@@ -137,7 +139,13 @@
     font-size: 11px; color: #7a6020; line-height: 1.6;
   }
 
-  .verdict-icon { font-size: 12px; margin-right: 4px; }
+  /* ── 警示標籤 ── */
+  .card-warning {
+    margin-top: 8px; padding: 6px 8px;
+    background: #fff0f0; border-radius: 8px;
+    border-left: 3px solid #e87070;
+    font-size: 10px; color: #a03030; line-height: 1.5;
+  }
 
   /* ── Tips ── */
   .tips-card {
@@ -147,6 +155,14 @@
   }
   .tips-title { font-family: 'Zen Maru Gothic', sans-serif; font-size: 12px; font-weight: 900; color: #7a6020; margin-bottom: 6px; }
   .tips-text { font-size: 11px; color: #7a6020; line-height: 1.6; }
+
+  /* ── 時效警告 ── */
+  .alert-card {
+    background: #fff5f5; border: 2px solid #f5b8b8;
+    border-radius: 12px; padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 11px; color: #a04040; line-height: 1.6;
+  }
 
   /* ── Empty ── */
   .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 32px 0; }
@@ -164,26 +180,33 @@
   <!-- Header -->
   <div class="header">
     <h1>💳 台灣信用卡優惠</h1>
-    <div class="header-sub">Top 10 信用卡・日本旅遊回饋一覽</div>
+    <div class="header-sub">2026 Q3（7～9月）・日本旅遊刷卡攻略</div>
+  </div>
+
+  <!-- 時效警告 -->
+  <div class="alert-card">
+    ⚠️ <strong>部分優惠有時效性！</strong>本頁以 2026 年 6 月後（Q3）仍有效資訊為主，部分卡片 Q3 活動細節以各銀行官網最終公告為準，刷卡前請務必再次確認。
   </div>
 
   <!-- Tips -->
   <div class="tips-card">
-    <div class="tips-title">💡 日本旅遊小撇步</div>
+    <div class="tips-title">💡 Q3 日本旅遊注意事項</div>
     <div class="tips-text">
-      • 無腦刷：日本消費 1.5% 以上回饋的信用卡<br>
-      • 外幣手續費：通常 1.5% 起跳，優化選擇省錢<br>
-      • 機場免稅店：搭配銀聯通路享額外優惠<br>
-      • 海外刷卡保險：常見於高端卡，出國必看
+      • 富邦 J 卡：Q3 加碼活動每月 20 日開放登錄，搶不到就沒有<br>
+      • 幣倍卡：6 月後精選通路加碼上限縮水，確認 Level 等級再出發<br>
+      • 玉山熊本熊：部分加碼至 6/30 止，7 月後確認最新活動登錄<br>
+      • 聯邦吉鶴：2.5% 基本回饋維持，Apple Pay 加碼方案每半年一期，需確認 Q3 活動是否延續<br>
+      • 外幣手續費約 1.5%，回饋低於此的卡等於白刷
     </div>
   </div>
 
   <!-- Filter -->
   <div class="filter-bar">
-    <button class="filter-btn active" onclick="filterCards('all')">全部</button>
-    <button class="filter-btn" onclick="filterCards('nomind')">無腦刷</button>
-    <button class="filter-btn" onclick="filterCards('travel')">日本旅遊</button>
-    <button class="filter-btn" onclick="filterCards('pay')">支付優惠</button>
+    <button class="filter-btn active" onclick="filterCards('all', event)">全部</button>
+    <button class="filter-btn" onclick="filterCards('nomind', event)">無腦刷</button>
+    <button class="filter-btn" onclick="filterCards('travel', event)">日本旅遊</button>
+    <button class="filter-btn" onclick="filterCards('pay', event)">支付優惠</button>
+    <button class="filter-btn" onclick="filterCards('nofee', event)">免手續費</button>
   </div>
 
   <!-- Cards List -->
@@ -195,65 +218,82 @@
   const cardsData = [
     {
       rank: 1,
-      name: '聯邦吉鶴卡',
-      issuer: '聯邦銀行',
-      baseReward: '2.5%',
-      rewards: '• 日幣消費 2.5% 無上限\n• 綁 Apple Pay 日本使用加碼 1.5%（有上限）\n• 7-11、LAWSON、迪士尼等加碼最高 3%\n• 新戶再加碼 3%（上限 600 元）',
-      usage: '無腦刷：日幣無上限 2.5% 回饋',
-      verdict: '🌟 2025/4~12 活動期間，日本回饋最強',
-      tags: ['nomind', 'travel']
+      name: '中信 uniopen 聯名卡',
+      issuer: '中國信託銀行',
+      baseReward: '最高11%',
+      rewards: '• 海外實體消費基本 2% 無上限（含日本）\n• 海外指定國家加碼 8%（每月上限 500 OPENPOINT）\n• 合計最高 11%（需完成踩點任務）\n• 活動期至 2026/8/31',
+      usage: '日本旅遊：海外實體通吃，8月底前有效',
+      verdict: '🌟 2% 無腦刷底氣，加碼 8% 衝日本首選，Q3 強卡',
+      warning: '⚠️ 8% 加碼每月上限 500 點，約刷 NT$6,250 達上限。回饋為 OPENPOINT，非現金',
+      tags: ['nomind', 'travel', 'pay']
     },
     {
       rank: 2,
-      name: '星展 eco 永續卡',
-      issuer: '星展銀行',
-      baseReward: '1.0%',
-      rewards: '• 日本實體店消費原 1% 回饋\n• 指定地區加碼 4%（上限 600 現金積點）\n• 完成任務加碼 2.5%（上限 300 積點/月）\n• 可達最高 7.5% 回饋（至 2026/3/31）',
-      usage: '旅遊：日本實體消費多重加碼',
-      verdict: '✈️ 到 5/31 有效，加碼最豐',
+      name: '富邦 J 卡',
+      issuer: '台北富邦銀行',
+      baseReward: '最高6%',
+      rewards: '• 日韓消費基本回饋 3% 無上限（需每季登錄）\n• 日韓實體單筆滿 NT$1,000 加碼 3%（最高 6%）\n• 日本三大交通卡（Suica/PASMO/ICOCA）儲值滿 NT$2,000 加碼 7%（最高 10%）\n• Q3 登錄：每月 20 日 16:00 起，限量 20,000 名\n• 活動期至 2026/9/30',
+      usage: '日本旅遊：大額實體消費、電車卡儲值必備',
+      verdict: '🚃 Q3 優惠延續至 9/30，交通卡 10% 是亮點，需搶登錄',
+      warning: '⚠️ 加碼需單筆滿 NT$1,000 元，小額消費只有基本 3%。交通卡儲值需滿 NT$2,000',
       tags: ['travel', 'pay']
     },
     {
       rank: 3,
-      name: '富邦 J 卡',
-      issuer: '富邦銀行',
-      baseReward: '3.0%',
-      rewards: '• 日韓泰實體店消費最高 6% 回饋\n• 綁 LINE Pay 條碼再享 12% 加碼\n• 累積消費滿 1,000 日圓享伴手禮兌換\n• 活動期間：2025/4/1 ~ 2026/3/31',
-      usage: '日本旅遊：實體店刷卡多倍回',
-      verdict: '🎁 伴手禮活動加持，長期優惠',
-      tags: ['travel', 'pay']
-    },
-    {
-      rank: 4,
-      name: '玉山熊本熊卡',
-      issuer: '玉山銀行',
-      baseReward: '1.0%',
-      rewards: '• 日本消費最高 8.5% 回饋\n• 免 1.5% 國外交易服務費\n• 指定商店優惠加倍\n• 玉山 e point 累積可兌換',
-      usage: '日本專刷：免外幣手續費省成本',
-      verdict: '💎 免國外手續費超划算，隱藏版神卡',
+      name: '台新 Richart 卡',
+      issuer: '台新銀行',
+      baseReward: '3.3%',
+      rewards: '• 切換「玩旅刷」方案：海外消費 3.3% 回饋無上限\n• Hotels.com 訂房再享 +5%（合計最高 8.3%）\n• 回饋為台新 Point（可折抵帳單）\n• 無消費門檻、無年費\n• 活動期至 2026/6/30（確認 Q3 是否延續）',
+      usage: '無腦刷：全通路海外 3.3%，無上限最輕鬆',
+      verdict: '🌍 玩旅刷方案若 Q3 延續則仍是首選；否則一般方案僅 0.3%',
+      warning: '⚠️ 需手動切換至「玩旅刷」權益方案，且 Q3 活動以官網公告為準',
       tags: ['nomind', 'travel']
     },
     {
-      rank: 5,
-      name: '台新 Richart（原 FlyGo）',
-      issuer: '台新銀行',
-      baseReward: '3.3%',
-      rewards: '• 海外消費 3.3% 無上限（線上、實體）\n• 訂房平台加碼享優惠\n• 航空公司消費 3.3% 回饋\n• 無年費、無消費門檻',
-      usage: '無腦刷：全通路海外都有 3.3%',
-      verdict: '🌍 一卡走天下，日本旅遊好用',
+      rank: 4,
+      name: '聯邦吉鶴卡',
+      issuer: '聯邦銀行',
+      baseReward: '2.5%',
+      rewards: '• 日幣消費基本 2.5% 無上限（JCB 通路）\n• 綁定 Apple Pay 加碼 2.5%（每月上限 600 元）\n• 指定通路加碼 3%（7-11/LAWSON/迪士尼等）\n• Apple Pay 加碼活動：Q3 是否延續以官網公告為準',
+      usage: '日本：JCB 通路基本 2.5%，iPhone 用戶加碼',
+      verdict: '🍀 2.5% 無腦基本回饋穩定，Apple Pay 加碼需確認 Q3 活動',
+      warning: '⚠️ 上半年活動（含 Apple Pay 加碼）至 6/30，Q3 延續情況請確認最新官網',
       tags: ['nomind', 'travel', 'pay']
+    },
+    {
+      rank: 5,
+      name: '永豐幣倍卡',
+      issuer: '永豐銀行',
+      baseReward: '最高6%',
+      rewards: '• 國外實體消費基本 2% 無上限（外幣回饋）\n• 精選通路加碼 4%（Level 1 月上限 300 元，Level 2 月上限 800 元）\n• Level 1：設定自動扣繳 + 電子帳單\n• Level 2：前月資產月平均達 NT$10 萬（大戶）\n• 新戶綁定行動支付加碼 20%（上限 500 元）',
+      usage: '日本旅遊：實體 + 旅遊通路，外幣直接回饋省匯差',
+      verdict: '💹 外幣直接回饋，搭配日圓高利定存超強組合',
+      warning: '⚠️ 多項加碼活動至 6/30 止，Q3 精選通路加碼上限需確認；回饋為外幣（日圓），非現金',
+      tags: ['travel', 'nomind']
+    },
+    {
+      rank: 6,
+      name: '樂天 Panda J 卡',
+      issuer: '樂天信用卡',
+      baseReward: '1.5%',
+      rewards: '• 海外消費基本 1.5% 回饋無上限（日韓泰可加碼至 4%）\n• 日本/韓國/泰國加碼 2.5%（月上限 500 元）\n• 加碼活動至 2026/6/30 止\n• Q3（7 月後）：僅剩基本 1.5% 無上限\n• 無年費、不限通路（含線上）',
+      usage: 'Q3 基本刷：1.5% 無腦備用卡，無門檻',
+      verdict: '📌 6月後加碼縮水，僅剩 1.5%；適合作為無腦備用卡',
+      warning: '⚠️ 4% 加碼活動已於 6/30 結束，7 月起基本 1.5%（確認是否有新活動）',
+      tags: ['nomind']
     }
   ];
 
   let currentFilter = 'all';
 
-  function filterCards(tag) {
+  function filterCards(tag, event) {
     currentFilter = tag;
-    // 更新按鈕狀態
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+    if (event && event.target) {
+      event.target.classList.add('active');
+    }
     renderCards();
   }
 
@@ -274,7 +314,7 @@
       <div class="card-item">
         <div class="card-header">
           <div class="card-rank">#${card.rank}</div>
-          <div>
+          <div style="flex:1;min-width:0;">
             <div class="card-name">${card.name}</div>
             <div class="card-issuer">${card.issuer}</div>
           </div>
@@ -294,6 +334,8 @@
         <div class="card-verdict">
           ${card.verdict}
         </div>
+
+        ${card.warning ? `<div class="card-warning">${card.warning}</div>` : ''}
       </div>
     `).join('');
   }
