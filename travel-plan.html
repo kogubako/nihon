@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>大阪京都行程表 | 2026/05/01-05/05</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --cream:#fdf6ee;
+    --pink:#f5b8c8;
+    --pink-dark:#e8849a;
+    --brown:#7a4f3a;
+    --border:#ead8c8;
+    --white:#fff;
+    --shadow:rgba(100,60,40,0.08);
+    --green:#7bbf6a;
+    --orange:#e8a04d;
+    --orange-dark:#cf8830;
+  }
+  html{
+    -webkit-text-size-adjust:100%;
+    text-size-adjust:100%;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    -webkit-text-size-adjust:100%;
+    text-size-adjust:100%;
+    font-family:'Noto Sans TC',"PingFang TC","Microsoft JhengHei",sans-serif;
+    background:var(--cream);
+    color:var(--brown);
+    padding-bottom:60px;
+  }
+  .sticky-top{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:var(--cream);
+    box-shadow:0 2px 6px rgba(100,60,40,0.06);
+    padding-bottom:10px;
+  }
+  header{
+    background:var(--white);
+    border-bottom:2px solid var(--border);
+    padding:18px 18px 16px;
+  }
+  header .logo{
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-size:21px;
+    font-weight:700;
+    color:var(--pink-dark);
+    letter-spacing:.04em;
+    margin-bottom:4px;
+  }
+  header .flight-info{
+    font-size:.78rem;
+    color:var(--brown);
+    opacity:.65;
+    line-height:1.7;
+    margin-top:6px;
+  }
+  header .flight-info b{color:var(--brown);opacity:1;}
+  .companions{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    margin-top:8px;
+  }
+  .companion-tag{
+    font-size:.72rem;
+    font-weight:700;
+    background:var(--pink);
+    color:var(--brown);
+    padding:3px 11px;
+    border-radius:999px;
+  }
+  .now-status{
+    max-width:960px;
+    margin:10px auto 0;
+    padding:0 18px;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    font-size:.74rem;
+    font-weight:700;
+  }
+  .now-status-item{
+    color:var(--brown);
+    opacity:.8;
+  }
+  .status-dot{
+    display:inline-block;
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--border);
+    margin-right:5px;
+    vertical-align:middle;
+  }
+  #nowStatusCurrent.is-live{color:var(--green);opacity:1;}
+  #nowStatusCurrent.is-live .status-dot{
+    background:var(--green);
+    box-shadow:0 0 0 2px var(--white),0 0 0 4px rgba(123,191,106,.35);
+    animation:pulse-dot 1.6s ease-in-out infinite;
+  }
+  #nowStatusNext{
+    font-size:.68rem;
+    font-weight:400;
+    opacity:.55;
+  }
+  .now-status-next-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .day-nav-select{
+    flex-shrink:0;
+    max-width:160px;
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:4px 10px;
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-size:.7rem;
+    font-weight:700;
+    color:var(--brown);
+    opacity:.9;
+    cursor:pointer;
+  }
+  .wrap{
+    max-width:960px;
+    margin:0 auto;
+    padding:18px;
+  }
+  .day-card{
+    background:var(--white);
+    border:1.5px solid var(--border);
+    border-radius:18px;
+    padding:20px 20px 18px;
+    box-shadow:0 2px 8px var(--shadow);
+    margin-bottom:18px;
+    scroll-margin-top:170px;
+  }
+  .day-head{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:4px;
+  }
+  .day-num{
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-size:1.5rem;
+    font-weight:700;
+    color:var(--pink-dark);
+  }
+  .day-date{
+    font-size:.85rem;
+    color:var(--brown);
+    opacity:.6;
+  }
+  .day-weather{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:.78rem;
+    font-weight:700;
+    color:var(--brown);
+    background:#fff0f4;
+    border:1px solid #f9d4de;
+    border-radius:999px;
+    padding:2px 10px;
+  }
+  .delay-ctrl{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    margin:3px 0 2px;
+  }
+  .delay-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.68rem;
+    font-weight:700;
+    color:var(--brown);
+    background:var(--cream);
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:1px 7px;
+    cursor:pointer;
+    line-height:1.6;
+  }
+  .delay-btn:active{background:var(--border);}
+  .delay-count{
+    font-size:.68rem;
+    font-weight:700;
+    color:var(--orange);
+    min-width:0;
+  }
+  .stop-time-orig.is-delayed{
+    text-decoration:line-through;
+    opacity:.5;
+  }
+  .delay-adjusted{
+    display:none;
+    color:var(--orange);
+    font-weight:700;
+    margin-left:4px;
+  }
+  .stop.has-delay .stop-name{color:var(--orange);}
+  .day-reset-delay{
+    display:inline-block;
+    font-size:.7rem;
+    font-weight:700;
+    color:var(--brown);
+    opacity:.55;
+    background:none;
+    border:1px dashed var(--border);
+    border-radius:999px;
+    padding:2px 10px;
+    cursor:pointer;
+    margin-left:auto;
+  }
+  .day-title{
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-size:1.0rem;
+    font-weight:700;
+    color:var(--brown);
+    margin:2px 0 14px;
+    padding-left:2px;
+  }
+  .timeline{
+    border-left:2.5px solid var(--border);
+    margin-left:8px;
+    padding-left:0;
+  }
+  .stop{
+    position:relative;
+    padding:0 0 18px 22px;
+  }
+  .stop:last-child{padding-bottom:2px;}
+  .stop::before{
+    content:'';
+    position:absolute;
+    left:-7.5px;
+    top:3px;
+    width:13px;
+    height:13px;
+    border-radius:50%;
+    background:var(--pink-dark);
+    border:2.5px solid var(--white);
+    box-shadow:0 0 0 2px var(--border);
+  }
+  .stop.optional::before{background:var(--orange);}
+  .stop-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .stop-main{flex:1;min-width:0;}
+  .stop-time{
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-size:.72rem;
+    font-weight:700;
+    color:var(--pink-dark);
+    letter-spacing:.02em;
+  }
+  .stop-name{
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-size:.98rem;
+    font-weight:700;
+    color:var(--brown);
+    margin:2px 0 3px;
+  }
+  .stop-note{
+    font-size:.83rem;
+    line-height:1.6;
+    color:var(--brown);
+    opacity:.8;
+  }
+  .stop-tag{
+    display:inline-block;
+    font-size:.68rem;
+    font-weight:700;
+    background:var(--cream);
+    border:1px solid var(--border);
+    color:var(--brown);
+    opacity:.7;
+    padding:1px 9px;
+    border-radius:999px;
+    margin-top:6px;
+    margin-right:5px;
+  }
+  .map-link{
+    flex-shrink:0;
+    font-size:.72rem;
+    font-weight:700;
+    font-family:'Zen Maru Gothic',sans-serif;
+    color:var(--pink-dark);
+    background:#fff0f4;
+    border:1px solid #efd5c5;
+    border-radius:999px;
+    padding:5px 12px;
+    text-decoration:none;
+    white-space:nowrap;
+  }
+  .day-summary{
+    background:var(--cream);
+    border:1.5px dashed var(--border);
+    border-radius:12px;
+    padding:10px 14px;
+    font-size:.8rem;
+    color:var(--brown);
+    opacity:.85;
+    margin-top:14px;
+    line-height:1.6;
+  }
+  .legend{
+    max-width:960px;
+    margin:0 auto;
+    padding:0 18px;
+    font-size:.75rem;
+    color:var(--brown);
+    opacity:.55;
+    display:flex;
+    gap:16px;
+    align-items:center;
+    margin-bottom:6px;
+  }
+  .legend-dot{
+    display:inline-block;
+    width:9px;height:9px;
+    border-radius:50%;
+    margin-right:5px;
+    vertical-align:middle;
+  }
+  footer{
+    text-align:center;
+    font-size:.72rem;
+    color:var(--brown);
+    opacity:.45;
+    padding:20px 18px;
+  }
+  .detail-toggle{
+    font-size:.74rem;
+    font-weight:700;
+    color:var(--orange-dark);
+    cursor:pointer;
+    margin-top:6px;
+    display:inline-block;
+    user-select:none;
+  }
+  .detail-wrap{
+    display:none;
+    margin-top:6px;
+    background:#fdf1e2;
+    border:1px dashed var(--orange);
+    border-radius:10px;
+    padding:10px 12px;
+  }
+  .detail-wrap.open{display:block;}
+  .detail-scores{
+    font-size:.78rem;
+    font-weight:700;
+    color:var(--orange-dark);
+    margin-bottom:4px;
+  }
+  .detail-meta{
+    font-size:.78rem;
+    color:var(--brown);
+    opacity:.75;
+    margin-bottom:4px;
+  }
+  .detail-rec{
+    margin:4px 0 6px;
+    padding-left:16px;
+    font-size:.8rem;
+    line-height:1.55;
+    color:var(--brown);
+  }
+  .detail-notes{
+    font-size:.8rem;
+    line-height:1.6;
+    color:var(--brown);
+    opacity:.85;
+  }
+  .stop.active::before{
+    background:var(--green);
+    box-shadow:0 0 0 2px var(--white),0 0 0 5px rgba(123,191,106,.35);
+    animation:pulse-dot 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse-dot{
+    0%{box-shadow:0 0 0 2px var(--white),0 0 0 5px rgba(123,191,106,.35);}
+    50%{box-shadow:0 0 0 2px var(--white),0 0 0 9px rgba(123,191,106,.12);}
+    100%{box-shadow:0 0 0 2px var(--white),0 0 0 5px rgba(123,191,106,.35);}
+  }
+  .stop.active .stop-name{color:var(--green);}
+  .live-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:.68rem;
+    font-weight:700;
+    color:#fff;
+    background:var(--green);
+    padding:2px 9px 2px 7px;
+    border-radius:999px;
+    margin-left:6px;
+    vertical-align:middle;
+    animation:pulse-badge 1.6s ease-in-out infinite;
+  }
+  .live-badge .live-dot{
+    width:6px;height:6px;
+    border-radius:50%;
+    background:#fff;
+  }
+  @keyframes pulse-badge{
+    0%,100%{opacity:1;}
+    50%{opacity:.6;}
+  }
+  .detail-list-link{
+    display:inline-block;
+    margin-top:6px;
+    font-size:.74rem;
+    font-weight:700;
+    color:var(--orange-dark);
+    text-decoration:none;
+  }
+</style>
+</head>
+<body>
+
+<div class="sticky-top">
+<header>
+  <div class="logo">🏯 大阪・京都五日遊 ✈️</div>
+  <div class="flight-info">✈️ 去程 TPE 5/1 18:20 → 大阪 22:00｜回程 關西機場 5/5 23:35 → TPE 5/6 01:30</div>
+</header>
+
+<div class="now-status">
+  <div class="now-status-item" id="nowStatusCurrent"><span class="status-dot"></span>目前：讀取中…</div>
+  <div class="now-status-item now-status-next-row">
+    <span id="nowStatusNext">⏭️ 下一站：讀取中…</span>
+    <select class="day-nav-select" id="dayNavSelect">
+      <option value="">📅 選擇日期</option>
+      <option value="#day1">🛫 Day1（5/1五）飛大阪</option>
+      <option value="#day2">🛍️ Day2（5/2六）心齋橋・日本橋</option>
+      <option value="#day3">⛩️ Day3（5/3日）天滿宮・梅田</option>
+      <option value="#day4">🚃 Day4（5/4一）京都</option>
+      <option value="#day5">✈️ Day5（5/5二）清水寺・返程</option>
+    </select>
+  </div>
+</div>
+</div>
+
+<div class="wrap">
+
+  <!-- DAY 1 -->
+  <div class="day-card" id="day1">
+    <div class="day-head">
+      <span class="day-num">🛫 Day 1</span>
+      <span class="day-date">2026/05/01（五）</span>
+      <button class="day-reset-delay" data-date="2026-05-01" title="清除本日所有延誤調整">↺ 重置延誤</button>
+    </div>
+    <div class="day-title">✈️ 台灣 → 大阪</div>
+    <div class="timeline">
+      <div class="stop" data-date="2026-05-01" data-start="18:20" data-end="22:00" data-idx="0">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🛫 18:20</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-01" data-idx="0"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">台灣 → 大阪（關西機場）</div>
+            <div class="stop-note">機場信用卡停車，去之前先打電話確認</div>
+            <span class="stop-tag">✈️ 去程</span>
+          </div>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-01" data-start="22:00" data-end="23:30" data-idx="1">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🛬 22:00</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-01" data-idx="1"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">抵達大阪</div>
+            <div class="stop-note">南海電鐵用 JCB 感應進站</div>
+            <span class="stop-tag">🚃 南海電鐵</span>
+          </div>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-01" data-start="23:30" data-end="23:59" data-idx="2">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍜 宵夜</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-01" data-idx="2"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">宵夜：花丸軒 難波・法善寺店</div>
+            <div class="stop-note">24小時營業，千日前商店街旁，離日本橋站步行約5分</div>
+            <span class="stop-tag">🍜 拉麵／餃子</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=花丸軒 難波・法善寺店" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+    </div>
+    <div class="day-summary">💡 南海電鐵用 JCB 感應進站；機場信用卡停車的條件，出發前先打電話確認。</div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="day-card" id="day2">
+    <div class="day-head">
+      <span class="day-num">🛍️ Day 2</span>
+      <span class="day-date">2026/05/02（六）</span>
+      <button class="day-reset-delay" data-date="2026-05-02" title="清除本日所有延誤調整">↺ 重置延誤</button>
+    </div>
+    <div class="day-title">🛍️ 心齋橋、日本橋</div>
+    <div class="timeline">
+      <div class="stop" data-date="2026-05-02" data-start="08:00" data-end="09:00" data-idx="0">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">☕ 早上</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-02" data-idx="0"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">上島咖啡</div>
+            <div class="stop-note">出門先去坐一下</div>
+            <span class="stop-tag">☕ 咖啡</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=上島珈琲店 日本橋" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-02" data-start="09:00" data-end="10:00" data-idx="1">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍳 早餐</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-02" data-idx="1"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">早餐：東橫INN</div>
+            <div class="stop-note">飯店早餐</div>
+            <span class="stop-tag">🍳 飯店早餐</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=東横INN 大阪 日本橋" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-02" data-start="10:00" data-end="12:00" data-idx="2">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🛍️ 上午</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-02" data-idx="2"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">心齋橋、日本橋</div>
+            <div class="stop-note">逛街</div>
+            <span class="stop-tag">🛍️ 逛街</span>
+          </div>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-02" data-start="12:00" data-end="13:30" data-idx="3">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🥞 午餐</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-02" data-idx="3"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">午餐：美津の</div>
+            <div class="stop-note">道頓堀的大阪燒老店，不可預約，用餐時段常排隊</div>
+            <span class="stop-tag">🥞 大阪燒</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=美津の" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-02" data-start="13:30" data-end="18:00" data-idx="4">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🛍️ 下午</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-02" data-idx="4"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">心齋橋、日本橋</div>
+            <div class="stop-note">繼續逛</div>
+            <span class="stop-tag">🛍️ 逛街</span>
+          </div>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-02" data-start="18:30" data-end="20:00" data-idx="5">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍜 晚餐</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-02" data-idx="5"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">晚餐：なにわ 麺次郎</div>
+            <div class="stop-note">在近鐵大阪難波站驗票口內，沒有定期券要先買入場券（180円）</div>
+            <span class="stop-tag">🍜 拉麵</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=なにわ 麺次郎" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+    </div>
+    <div class="day-summary">💡 なにわ麺次郎在驗票口內，沒有定期券的人要先在售票機買入場券（180円）再進去。</div>
+  </div>
+
+  <!-- DAY 3 -->
+  <div class="day-card" id="day3">
+    <div class="day-head">
+      <span class="day-num">⛩️ Day 3</span>
+      <span class="day-date">2026/05/03（日）</span>
+      <button class="day-reset-delay" data-date="2026-05-03" title="清除本日所有延誤調整">↺ 重置延誤</button>
+    </div>
+    <div class="day-title">⛩️ 天滿宮、天神橋筋商店街、梅田</div>
+    <div class="timeline">
+      <div class="stop" data-date="2026-05-03" data-start="08:00" data-end="09:00" data-idx="0">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍞 早餐</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-03" data-idx="0"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">早餐：SAKImoto bakery</div>
+            <div class="stop-note">扇町店 8:00 開店，吐司是招牌</div>
+            <span class="stop-tag">🍞 麵包</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=SAKImotobakery and more 扇町店" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-03" data-start="09:30" data-end="11:00" data-idx="1">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">⛩️ 上午</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-03" data-idx="1"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">大阪天満宮</div>
+            <div class="stop-note">祭祀學問之神菅原道真，官網公告的夏季開門時間為 5:30-18:30</div>
+            <span class="stop-tag">⛩️ 神社</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=大阪天満宮" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-03" data-start="11:00" data-end="12:00" data-idx="2">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🛍️ 逛街</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-03" data-idx="2"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">天神橋筋商店街</div>
+            <div class="stop-note">邊走邊吃商店街章魚燒（食べログ 3.53）。全長約2.6km，日本最長的商店街</div>
+            <span class="stop-tag">🐙 商店街</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=天神橋筋商店街" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-03" data-start="12:00" data-end="13:30" data-idx="3">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍣 午餐</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-03" data-idx="3"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">午餐：壽司郎</div>
+            <span class="stop-tag">🍣 迴轉壽司</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=壽司郎 梅田" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-03" data-start="14:00" data-end="18:00" data-idx="4">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🏬 下午</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-03" data-idx="4"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">梅田</div>
+            <div class="stop-note">逛街</div>
+            <span class="stop-tag">🛍️ 逛街</span>
+          </div>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-03" data-start="18:30" data-end="20:00" data-idx="5">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍜 晚餐</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-03" data-idx="5"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">晚餐：桐麺 梅田店</div>
+            <div class="stop-note">LINKS UMEDA B1F，食べログ拉麵百名店（2022〜2025）</div>
+            <span class="stop-tag">🍜 中華そば</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=中華そば 桐麺 梅田店" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-03" data-start="21:00" data-end="22:00" data-idx="6">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍜 宵夜</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-03" data-idx="6"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">宵夜：神座拉麵</div>
+            <span class="stop-tag">🍜 拉麵</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=神座 大阪" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+    </div>
+    <div class="day-summary">💡 大阪天満宮、天神橋筋商店街、SAKImoto 扇町店都在同一條天神橋筋上，可以一路走過去。</div>
+  </div>
+
+  <!-- DAY 4 -->
+  <div class="day-card" id="day4">
+    <div class="day-head">
+      <span class="day-num">🚃 Day 4</span>
+      <span class="day-date">2026/05/04（一）</span>
+      <button class="day-reset-delay" data-date="2026-05-04" title="清除本日所有延誤調整">↺ 重置延誤</button>
+    </div>
+    <div class="day-title">🏯 京都：四条河原町、先斗町</div>
+    <div class="timeline">
+      <div class="stop" data-date="2026-05-04" data-start="07:00" data-end="08:30" data-idx="0">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🚃 一大早</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-04" data-idx="0"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">出發去京都：日本橋 → 阪急烏丸</div>
+            <div class="stop-note">路線：堺筋線（日本橋 → 天神橋筋六丁目，約12分／¥240）→ 同月台換乘阪急特急（→ 烏丸，約40分／¥450）。總計約55分、¥690，換乘1次，用 JCB 感應。阪急烏丸站步行到飯店約3–5分。</div>
+            <span class="stop-tag">🚃 堺筋線＋阪急特急</span>
+          </div>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-04" data-start="08:30" data-end="09:30" data-idx="1">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍔 早餐</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-04" data-idx="1"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">早餐：麥當勞</div>
+            <span class="stop-tag">🍔 麥當勞</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=マクドナルド 京都 四条" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-04" data-start="10:00" data-end="12:00" data-idx="2">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🛍️ 上午</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-04" data-idx="2"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">四条河原町逛街</div>
+            <div class="stop-note">逛「Onitsuka、Chiikawa、Mizuno…」</div>
+            <span class="stop-tag">🛍️ 逛街</span>
+          </div>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-04" data-start="12:00" data-end="13:30" data-idx="3">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍜 午餐</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-04" data-idx="3"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">午餐：麺屋 猪一</div>
+            <div class="stop-note">河原町本店，食べログ拉麵 WEST 百名店 2025，11:00-14:30 營業</div>
+            <span class="stop-tag">🍜 拉麵</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=麺屋 猪一" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-04" data-start="13:30" data-end="17:00" data-idx="4">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🛍️ 下午</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-04" data-idx="4"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">四条河原町逛街</div>
+            <div class="stop-note">繼續逛「Onitsuka、Chiikawa、Mizuno…」</div>
+            <span class="stop-tag">🛍️ 逛街</span>
+          </div>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-04" data-start="17:30" data-end="18:30" data-idx="5">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🏮 傍晚</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-04" data-idx="5"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">先斗町</div>
+            <div class="stop-note">晚上去走窄巷子</div>
+            <span class="stop-tag">🏮 花街</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=先斗町" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-04" data-start="19:00" data-end="20:30" data-idx="6">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍗 晚餐</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-04" data-idx="6"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">晚餐：鳥貴族</div>
+            <span class="stop-tag">🍗 烤雞串</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=鳥貴族 京都" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+    </div>
+    <div class="day-summary">💡 去程交通：堺筋線＋阪急特急總計約55分、¥690，用 JCB 感應進站即可。</div>
+  </div>
+
+  <!-- DAY 5 -->
+  <div class="day-card" id="day5">
+    <div class="day-head">
+      <span class="day-num">✈️ Day 5</span>
+      <span class="day-date">2026/05/05（二）</span>
+      <button class="day-reset-delay" data-date="2026-05-05" title="清除本日所有延誤調整">↺ 重置延誤</button>
+    </div>
+    <div class="day-title">⛩️ 京都散策 → 關西機場 → 回台灣</div>
+    <div class="timeline">
+      <div class="stop" data-date="2026-05-05" data-start="06:30" data-end="08:30" data-idx="0">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🚲 一大清早</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-05" data-idx="0"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">二年坂・三年坂（視情況）</div>
+            <div class="stop-note">一大清早騎腳踏車去拍照，或許吧</div>
+            <span class="stop-tag">📸 拍照</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=二年坂・三年坂" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-05" data-start="09:00" data-end="10:30" data-idx="1">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍳 早餐</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-05" data-idx="1"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">早餐：Eggs &#x27;n Things 京都四条店</div>
+            <div class="stop-note">9:00 開店（L.O. 20:00 營業到21:00），烏丸站步行5分</div>
+            <span class="stop-tag">🍳 早午餐</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=エッグスンシングス 京都四条店" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-05" data-start="10:30" data-end="12:30" data-idx="2">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">⛩️ 上午</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-05" data-idx="2"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">清水寺</div>
+            <div class="stop-note">逛「Onitsuka、Chiikawa、Mizuno…」。官網寫通常 6:00 開門，閉門依季節</div>
+            <span class="stop-tag">⛩️ 寺院</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=清水寺" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-05" data-start="12:30" data-end="14:00" data-idx="3">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍳 午餐</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-05" data-idx="3"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">午餐：Omura House 蛋包飯</div>
+            <div class="stop-note">おむらはうす 出町柳店，不可預約，11:00-14:30 營業</div>
+            <span class="stop-tag">🍳 蛋包飯</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=おむらはうす 出町柳店" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-05" data-start="14:00" data-end="15:00" data-idx="4">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🌉 下午</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-05" data-idx="4"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">鴨川</div>
+            <span class="stop-tag">🌉 河畔</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=鴨川 四条大橋" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-05" data-start="15:00" data-end="16:30" data-idx="5">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">⛩️ 下午</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-05" data-idx="5"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">河合神社、下鴨神社</div>
+            <div class="stop-note">河合神社 16:30 閉門；下鴨神社樓門 17:00 閉門</div>
+            <span class="stop-tag">⛩️ 神社</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=下鴨神社" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-05" data-start="17:00" data-end="18:30" data-idx="6">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🧳 傍晚</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-05" data-idx="6"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">回飯店拿行李</div>
+            <div class="stop-note">18:00 要拿到行李，才趕得上京都車站 19:00 的 HARUKA</div>
+            <span class="stop-tag">🧳 行李</span>
+          </div>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-05" data-start="19:00" data-end="20:30" data-idx="7">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🚄 19:00</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-05" data-idx="7"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">HARUKA：京都車站 → 關西機場</div>
+            <span class="stop-tag">🚄 特急 HARUKA</span>
+          </div>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-05" data-start="20:30" data-end="22:30" data-idx="8">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🍜 晚餐</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-05" data-idx="8"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">晚餐：機場神座拉麵</div>
+            <span class="stop-tag">🍜 拉麵</span>
+          </div>
+          <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=神座 関西国際空港" target="_blank" rel="noopener">📍</a>
+        </div>
+      </div>
+      <div class="stop" data-date="2026-05-05" data-start="23:35" data-end="23:59" data-idx="9">
+        <div class="stop-top">
+          <div class="stop-main">
+            <div class="stop-time"><span class="stop-time-orig">🛫 23:35</span><span class="delay-adjusted"></span></div>
+            <div class="delay-ctrl" data-date="2026-05-05" data-idx="9"><button class="delay-btn" data-delta="-30">－30</button><span class="delay-count"></span><button class="delay-btn" data-delta="30">＋30</button></div>
+            <div class="stop-name">關西機場 → 台灣</div>
+            <div class="stop-note">隔天 01:30 抵達桃園</div>
+            <span class="stop-tag">✈️ 回程</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="day-summary">💡 18:00 一定要拿到行李，搭 19:00 的 HARUKA 前往關西機場；23:35 起飛、隔天 01:30 抵達台灣。</div>
+  </div>
+
+</div>
+
+<footer>🎒 行程僅供參考，實際營業時間／交通班次請以現場公告與官方最新資訊為準 ✨</footer>
+
+
+<script>
+let DATA = [];
+
+async function loadVenues(){
+  try {
+    const res = await fetch('venues.json');
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    DATA = await res.json();
+    initDetailToggles();
+  } catch(err){
+    console.warn('venues.json 載入失敗：', err.message, '（詳細資訊功能將不可用，但行程表其餘內容不受影響）');
+  }
+}
+
+// ===== 延誤標記功能 =====
+function delayKey(date, idx){ return 'delay::' + date + '::' + idx; }
+
+function getOwnUnits(date, idx){
+  return parseInt(localStorage.getItem(delayKey(date, idx)) || '0', 10);
+}
+
+function setOwnUnits(date, idx, val){
+  localStorage.setItem(delayKey(date, idx), String(val));
+}
+
+function timeToMin(hhmm){
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function minToTime(min){
+  min = ((min % 1440) + 1440) % 1440;
+  const h = Math.floor(min / 60), m = min % 60;
+  return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+}
+
+// 計算某站「累積延誤分鐘數」= 當天從第0站到這站(含)為止，所有 own 延誤加總
+function cumulativeDelayMinutes(date, idx){
+  let sum = 0;
+  for(let i = 0; i <= Number(idx); i++){
+    sum += getOwnUnits(date, i) * 30;
+  }
+  return sum;
+}
+
+function renderDelays(){
+  const byDate = {};
+  document.querySelectorAll('.stop[data-date][data-idx]').forEach(el => {
+    const date = el.dataset.date;
+    (byDate[date] = byDate[date] || []).push(el);
+  });
+  Object.keys(byDate).forEach(date => {
+    // 依 data-idx 排序，確保是時間先後順序
+    const stops = byDate[date].sort((a, b) => Number(a.dataset.idx) - Number(b.dataset.idx));
+    let cumulative = 0;
+    stops.forEach(el => {
+      const idx = el.dataset.idx;
+      const own = getOwnUnits(date, idx);
+      cumulative += own * 30;
+
+      const origEl = el.querySelector('.stop-time-orig');
+      const adjEl = el.querySelector('.delay-adjusted');
+      const countEl = el.querySelector('.delay-count');
+      const baseStart = el.dataset.start;
+
+      if(cumulative !== 0 && baseStart){
+        const newTime = minToTime(timeToMin(baseStart) + cumulative);
+        adjEl.textContent = '→ ' + newTime;
+        adjEl.style.display = 'inline';
+        origEl.classList.add('is-delayed');
+        el.classList.add('has-delay');
+      } else {
+        adjEl.textContent = '';
+        adjEl.style.display = 'none';
+        origEl.classList.remove('is-delayed');
+        el.classList.remove('has-delay');
+      }
+
+      if(own > 0) countEl.textContent = '已延 ' + own + ' 次';
+      else if(own < 0) countEl.textContent = '已提前 ' + Math.abs(own) + ' 次';
+      else countEl.textContent = '';
+    });
+  });
+}
+
+function resetDayDelays(date){
+  document.querySelectorAll('.stop[data-date="' + date + '"][data-idx]').forEach(el => {
+    localStorage.removeItem(delayKey(date, el.dataset.idx));
+  });
+  renderDelays();
+  if(typeof updateActiveStops === 'function') updateActiveStops();
+}
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.delay-btn');
+  if(btn){
+    const ctrl = btn.closest('.delay-ctrl');
+    const date = ctrl.dataset.date, idx = ctrl.dataset.idx;
+    const unit = parseInt(btn.dataset.delta, 10) / 30;
+    setOwnUnits(date, idx, getOwnUnits(date, idx) + unit);
+    renderDelays();
+    if(typeof updateActiveStops === 'function') updateActiveStops();
+    return;
+  }
+  const resetBtn = e.target.closest('.day-reset-delay');
+  if(resetBtn){
+    if(confirm('確定要清除這天所有的延誤調整嗎？')) resetDayDelays(resetBtn.dataset.date);
+  }
+});
+
+renderDelays();
+// ===== 延誤標記功能結束 =====
+
+async function loadWeather(){
+  try {
+    const res = await fetch('weather.json');
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const wj = await res.json();
+    const byDate = {};
+    (wj.days || []).forEach(d => { byDate[d.date] = d; });
+    document.querySelectorAll('.day-weather[data-wdate]').forEach(el => {
+      const d = byDate[el.dataset.wdate];
+      if(!d) return;
+      el.textContent = `${d.icon} ${d.desc} ${d.high}°/${d.low}°`;
+      if(wj.updated) el.title = '資料更新：' + wj.updated + (wj.note ? '\n' + wj.note : '');
+    });
+  } catch(err){
+    console.warn('weather.json 載入失敗：', err.message, '（將顯示行程表內建的預設天氣文字）');
+  }
+}
+
+function findVenue(queryText){
+  const q = (queryText || '').trim().toLowerCase();
+  if(!q) return null;
+  for(const d of DATA){
+    const n = (d.name || '').toLowerCase();
+    const j = (d.jp || '').toLowerCase();
+    if(n === q || j === q) return d;
+  }
+  for(const d of DATA){
+    const n = (d.name || '').toLowerCase();
+    const j = (d.jp || '').toLowerCase();
+    if((n && (n.includes(q) || q.includes(n))) || (j && (j.includes(q) || q.includes(j)))) return d;
+  }
+  return null;
+}
+
+function escapeHTML(s){
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function detailBoxHTML(d, rawQuery){
+  const scores = [];
+  if(d.gRating) scores.push(`Google ★${d.gRating}${d.gReviews ? `（${d.gReviews}則）` : ''}`);
+  if(d.tRating) scores.push(`食べログ ${d.tRating.toFixed(2)}${d.tReviews ? `（${d.tReviews}則）` : ''}`);
+  const meta = [];
+  if(d.hours) meta.push('⏰ ' + escapeHTML(d.hours));
+  if(d.price) meta.push('💰 ' + escapeHTML(d.price));
+  const rec = (d.rec && d.rec.length) ? `<ul class="detail-rec">${d.rec.map(r => `<li>${escapeHTML(r)}</li>`).join('')}</ul>` : '';
+  const listUrl = 'travel-list.html?q=' + encodeURIComponent(rawQuery);
+  return `
+    <div class="detail-wrap" data-loaded="1">
+      ${scores.length ? `<div class="detail-scores">${scores.join(' ・ ')}</div>` : ''}
+      ${meta.length ? `<div class="detail-meta">${meta.join(' ・ ')}</div>` : ''}
+      ${rec}
+      ${d.notes ? `<div class="detail-notes">${escapeHTML(d.notes)}</div>` : ''}
+      <a class="detail-list-link" href="${listUrl}">在完整清單中查看 →</a>
+    </div>`;
+}
+
+function initDetailToggles(){
+  document.querySelectorAll('.map-link').forEach(a => {
+    let query = '';
+    try {
+      query = new URL(a.href).searchParams.get('query') || '';
+    } catch(e){ return; }
+    const venue = findVenue(query);
+    if(!venue) return;
+
+    if(venue.lat && venue.lng){
+      a.href = `https://www.google.com/maps/search/?api=1&query=${venue.lat},${venue.lng}`;
+    }
+
+    const stopMain = a.closest('.stop-top')?.querySelector('.stop-main');
+    if(!stopMain) return;
+
+    const toggle = document.createElement('div');
+    toggle.className = 'detail-toggle';
+    toggle.textContent = '▼ 詳細資訊';
+
+    const box = document.createElement('div');
+    box.innerHTML = detailBoxHTML(venue, query);
+    const boxInner = box.firstElementChild;
+
+    toggle.addEventListener('click', () => {
+      const isOpen = boxInner.classList.toggle('open');
+      toggle.textContent = isOpen ? '▲ 收合' : '▼ 詳細資訊';
+    });
+
+    stopMain.appendChild(toggle);
+    stopMain.appendChild(boxInner);
+  });
+}
+
+function initScheduleLabels(){
+  document.querySelectorAll('.stop[data-date]').forEach(stop => {
+    const nameEl = stop.querySelector('.stop-name');
+    if(nameEl && !stop.dataset.stopName){
+      stop.dataset.stopName = nameEl.textContent.trim();
+    }
+  });
+}
+
+function updateNowStatus(){
+  const now = new Date();
+  const stops = Array.from(document.querySelectorAll('.stop[data-date]'))
+    .map(el => {
+      const { date, start, end, stopName, idx } = el.dataset;
+      const offsetMin = idx !== undefined ? cumulativeDelayMinutes(date, idx) : 0;
+      const offsetMs = offsetMin * 60000;
+      const startAt = new Date(new Date(`${date}T${start}:00`).getTime() + offsetMs);
+      const endAt = new Date(new Date(`${date}T${end}:00`).getTime() + offsetMs);
+      return {
+        name: stopName || '',
+        timeLabel: offsetMin !== 0
+          ? `${start}→${minToTime(timeToMin(start) + offsetMin)}`
+          : (el.querySelector('.stop-time')?.textContent.trim() || ''),
+        dateLabel: el.closest('.day-card')?.querySelector('.day-date')?.textContent.trim() || '',
+        start: startAt,
+        end: endAt,
+      };
+    })
+    .sort((a, b) => a.start - b.start);
+
+  const current = stops.find(s => now >= s.start && now <= s.end) || null;
+  const next = stops.find(s => s.start > now) || null;
+
+  const currentEl = document.getElementById('nowStatusCurrent');
+  const nextEl = document.getElementById('nowStatusNext');
+
+  if(currentEl){
+    const label = current ? `目前：${current.name}` : '目前沒有進行中的行程';
+    currentEl.innerHTML = `<span class="status-dot"></span>${escapeHTML(label)}`;
+    currentEl.classList.toggle('is-live', !!current);
+  }
+  if(nextEl){
+    nextEl.textContent = next
+      ? `⏭️ 下一站：${next.dateLabel}　${next.timeLabel}　${next.name}`
+      : '🏁 行程已全部結束';
+  }
+}
+
+function updateActiveStops(){
+  const now = new Date();
+  document.querySelectorAll('.stop[data-date]').forEach(stop => {
+    const { date, start, end, idx } = stop.dataset;
+    if(!date || !start || !end) return;
+    const offsetMin = idx !== undefined ? cumulativeDelayMinutes(date, idx) : 0;
+    const offsetMs = offsetMin * 60000;
+    const startAt = new Date(new Date(`${date}T${start}:00`).getTime() + offsetMs);
+    const endAt = new Date(new Date(`${date}T${end}:00`).getTime() + offsetMs);
+    const isActive = now >= startAt && now <= endAt;
+
+    stop.classList.toggle('active', isActive);
+
+    const stopMain = stop.querySelector('.stop-main');
+    const nameEl = stop.querySelector('.stop-name');
+    let badge = stop.querySelector('.live-badge');
+    if(isActive && !badge && nameEl){
+      badge = document.createElement('span');
+      badge.className = 'live-badge';
+      badge.innerHTML = '<span class="live-dot"></span>進行中';
+      nameEl.appendChild(badge);
+    } else if(!isActive && badge){
+      badge.remove();
+    }
+  });
+  updateNowStatus();
+}
+
+function initDayNavSelect(){
+  const select = document.getElementById('dayNavSelect');
+  if(!select) return;
+
+  select.addEventListener('change', () => {
+    const target = select.value;
+    if(target){
+      document.querySelector(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    select.value = '';
+  });
+}
+
+initScheduleLabels();
+initDayNavSelect();
+updateActiveStops();
+setInterval(updateActiveStops, 60000);
+
+loadVenues();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>大阪京都旅遊清單</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --cream:#fdf6ee;
+    --pink:#f5b8c8;
+    --pink-dark:#e8849a;
+    --brown:#7a4f3a;
+    --border:#ead8c8;
+    --white:#fff;
+    --shadow:rgba(100,60,40,0.08);
+    --green:#7bbf6a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Noto Sans TC',"PingFang TC","Microsoft JhengHei",sans-serif;
+    background:var(--cream);
+    color:var(--brown);
+    padding-bottom:60px;
+  }
+  header{
+    background:var(--white);
+    border-bottom:2px solid var(--border);
+    padding:14px 18px 12px;
+    position:sticky;
+    top:0;
+    z-index:100;
+  }
+  header .logo{
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-size:20px;
+    font-weight:700;
+    color:var(--pink-dark);
+    letter-spacing:.04em;
+    margin-bottom:2px;
+  }
+  header .logo span{color:var(--brown);font-size:12px;margin-left:6px;font-weight:400;opacity:.7;}
+  .back-to-plan{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    background:var(--cream);
+    border:1.5px solid var(--border);
+    color:var(--brown);
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-size:.78rem;
+    font-weight:700;
+    padding:6px 13px;
+    border-radius:999px;
+    text-decoration:none;
+    margin-top:8px;
+  }
+  header p.sub{
+    margin:2px 0 0;
+    font-size:.78rem;
+    color:var(--brown);
+    opacity:.55;
+  }
+  .controls{
+    max-width:960px;
+    margin:14px auto 0;
+    padding:0 18px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  #search{
+    flex:1;
+    min-width:200px;
+    padding:10px 14px;
+    border-radius:10px;
+    border:1.5px solid var(--border);
+    background:var(--cream);
+    font-family:'Noto Sans TC',sans-serif;
+    font-size:1rem;
+    color:var(--brown);
+    outline:none;
+    transition:border-color .18s;
+  }
+  #search:focus{border-color:var(--pink-dark);}
+  .filters{
+    max-width:960px;
+    margin:12px auto 0;
+    padding:0 18px;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .filter-btn{
+    border:1.5px solid var(--border);
+    background:var(--cream);
+    color:var(--brown);
+    font-family:'Zen Maru Gothic',sans-serif;
+    padding:7px 15px;
+    border-radius:999px;
+    font-size:.82rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .filter-btn.active{
+    background:var(--pink-dark);
+    color:#fff;
+    border-color:var(--pink-dark);
+  }
+  .count{
+    max-width:960px;
+    margin:14px auto 0;
+    padding:0 22px;
+    font-size:.8rem;
+    color:var(--brown);
+    opacity:.55;
+  }
+  .grid{
+    max-width:960px;
+    margin:10px auto 0;
+    padding:0 18px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .card{
+    background:var(--white);
+    border:1.5px solid var(--border);
+    border-radius:16px;
+    padding:16px 18px;
+    box-shadow:0 2px 8px var(--shadow);
+  }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .card-main{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    flex:1;
+    min-width:0;
+  }
+  .thumb{
+    flex-shrink:0;
+    width:64px;
+    height:64px;
+    border-radius:12px;
+    object-fit:cover;
+    border:1.5px solid var(--border);
+    background:var(--cream);
+  }
+  .thumb-fallback{
+    flex-shrink:0;
+    width:64px;
+    height:64px;
+    border-radius:12px;
+    border:1.5px solid var(--border);
+    background:var(--cream);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+  }
+  .card-title-wrap{min-width:0;flex:1;}
+  .card h2{
+    margin:0 0 4px;
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-size:1.02rem;
+    font-weight:700;
+    color:var(--brown);
+  }
+  .copyable{
+    cursor:pointer;
+    border-bottom:1px dashed var(--border);
+    transition:opacity .1s;
+  }
+  .copyable:active{opacity:.55;}
+  .copy-ic{
+    font-size:.7rem;
+    opacity:.4;
+    cursor:pointer;
+  }
+  #copyToast{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--brown);
+    color:#fff;
+    font-size:.78rem;
+    font-weight:700;
+    padding:8px 18px;
+    border-radius:20px;
+    opacity:0;
+    transition:opacity .25s, transform .25s;
+    pointer-events:none;
+    white-space:nowrap;
+    max-width:80vw;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    z-index:999;
+  }
+  #copyToast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .meta-line{
+    font-size:.8rem;
+    color:var(--brown);
+    opacity:.6;
+    margin-bottom:6px;
+  }
+  .tags{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    margin:6px 0;
+  }
+  .tag{
+    font-size:.72rem;
+    font-weight:700;
+    background:var(--pink);
+    color:var(--brown);
+    padding:2px 10px;
+    border-radius:999px;
+  }
+  .scores{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:8px 0 8px;
+  }
+  .score-box{
+    font-size:.75rem;
+    background:var(--cream);
+    border:1.5px solid var(--border);
+    border-radius:10px;
+    padding:6px 12px;
+    min-width:104px;
+    color:var(--brown);
+    opacity:.85;
+  }
+  .score-box b{
+    display:block;
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-size:1.02rem;
+    color:var(--green);
+  }
+  .score-box.tabelog b{color:var(--pink-dark);}
+  .section-label{
+    font-size:.76rem;
+    font-weight:700;
+    font-family:'Zen Maru Gothic',sans-serif;
+    color:var(--pink-dark);
+    margin-top:8px;
+    margin-bottom:3px;
+  }
+  ul.rec{
+    margin:2px 0 6px;
+    padding-left:18px;
+    font-size:.86rem;
+    line-height:1.55;
+    color:var(--brown);
+  }
+  .notes{
+    font-size:.85rem;
+    line-height:1.65;
+    color:var(--brown);
+    opacity:.85;
+    margin-top:4px;
+  }
+  .addr{
+    font-size:.8rem;
+    color:var(--brown);
+    opacity:.55;
+    margin-top:6px;
+  }
+  .toggle-btn{
+    font-size:.78rem;
+    font-weight:700;
+    color:var(--pink-dark);
+    cursor:pointer;
+    margin-top:10px;
+    display:inline-block;
+    user-select:none;
+  }
+  .map-link{
+    font-size:.75rem;
+    font-weight:700;
+    font-family:'Zen Maru Gothic',sans-serif;
+    color:#fff;
+    background:var(--pink-dark);
+    border-radius:999px;
+    padding:5px 13px;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    white-space:nowrap;
+    transition:background .15s;
+  }
+  .map-link:active{background:var(--brown);}
+  .details{
+    display:none;
+    margin-top:8px;
+    border-top:1px dashed var(--border);
+    padding-top:10px;
+  }
+  .details.open{display:block;}
+  .badge-nodata{
+    font-size:.7rem;
+    font-weight:700;
+    color:#a06a00;
+    background:#fff4dd;
+    border:1px solid #f0dcae;
+    padding:2px 9px;
+    border-radius:999px;
+  }
+  .empty{
+    text-align:center;
+    color:var(--brown);
+    opacity:.5;
+    padding:40px 0;
+  }
+  .nearby-toggle{
+    margin-top:12px;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    background:var(--pink);
+    border:1.5px solid var(--pink-dark);
+    color:var(--brown);
+    padding:7px 16px;
+    border-radius:999px;
+    font-size:.8rem;
+    font-weight:700;
+    transition:background .15s,box-shadow .15s;
+    box-shadow:0 2px 6px var(--shadow);
+  }
+  .nearby-toggle:active{background:var(--pink-dark);color:#fff;}
+  .nearby-list-wrap{
+    display:none;
+    margin-top:6px;
+  }
+  .nearby-list-wrap.open{display:block;}
+  .nearby-list-ul{
+    list-style:none;
+    margin:4px 0 0;
+    padding:0;
+  }
+  .nearby-list-ul li{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 10px;
+    border-radius:10px;
+    font-size:.82rem;
+    color:var(--brown);
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .nearby-list-ul li:hover{background:var(--cream);}
+  .nearby-dist{
+    flex-shrink:0;
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-weight:700;
+    font-size:.72rem;
+    color:#fff;
+    background:var(--green);
+    padding:2px 8px;
+    border-radius:999px;
+    min-width:48px;
+    text-align:center;
+  }
+  .nearby-cat{
+    margin-left:auto;
+    font-size:.7rem;
+    opacity:.55;
+    flex-shrink:0;
+  }
+  .nearby-empty{
+    font-size:.82rem;
+    color:var(--brown);
+    opacity:.55;
+    padding:6px 2px;
+  }
+  @keyframes cardFlash{
+    0%{box-shadow:0 0 0 3px var(--pink-dark);}
+    100%{box-shadow:0 2px 8px var(--shadow);}
+  }
+  .card.flash{animation:cardFlash 1.4s ease-out;}
+  .locate-btn{
+    border:1.5px solid var(--pink-dark);
+    background:var(--pink-dark);
+    color:#fff;
+    font-family:'Zen Maru Gothic',sans-serif;
+    padding:9px 16px;
+    border-radius:10px;
+    font-size:.86rem;
+    font-weight:700;
+    cursor:pointer;
+    white-space:nowrap;
+    animation:locatePulse 2.4s ease-in-out infinite;
+  }
+  @keyframes locatePulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(232,132,154,0.45);}
+    50%{box-shadow:0 0 0 7px rgba(232,132,154,0);}
+  }
+  .locate-btn:active{animation:none;}
+  .near-me-panel{
+    max-width:960px;
+    margin:12px auto 0;
+    padding:0 18px;
+  }
+  .near-me-inner{
+    background:var(--white);
+    border:1.5px solid var(--border);
+    border-radius:14px;
+    padding:14px 16px;
+    box-shadow:0 2px 8px var(--shadow);
+  }
+  .near-me-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:6px;
+  }
+  .near-me-title{
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-weight:700;
+    color:var(--pink-dark);
+    font-size:.9rem;
+    flex:1;
+  }
+  .near-me-radius{
+    display:flex;
+    gap:6px;
+  }
+  .radius-btn{
+    border:1.5px solid var(--border);
+    background:var(--cream);
+    color:var(--brown);
+    font-family:'Zen Maru Gothic',sans-serif;
+    padding:4px 11px;
+    border-radius:999px;
+    font-size:.74rem;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .radius-btn.active{
+    background:var(--pink-dark);
+    color:#fff;
+    border-color:var(--pink-dark);
+  }
+  .near-me-close{
+    cursor:pointer;
+    font-size:.9rem;
+    opacity:.5;
+    padding:0 4px;
+  }
+  footer{
+    text-align:center;
+    font-size:.72rem;
+    color:var(--brown);
+    opacity:.45;
+    padding:20px 18px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🇯🇵 大阪・京都旅遊清單</div>
+  <div id="backToPlan" style="display:none;"></div>
+  <p class="sub" id="headerSub">行程地點清單 · 共 <span id="totalCount"></span> 個地點 </p>
+</header>
+<div class="controls">
+  <input id="search" type="text" placeholder="搜尋店名 / 品項 / 地區關鍵字...">
+  <button class="locate-btn" onclick="findNearMe()">📍 我在這附近</button>
+</div>
+<div class="near-me-panel" id="nearMePanel" style="display:none;">
+  <div class="near-me-inner">
+    <div class="near-me-header">
+      <span class="near-me-title">📍 你附近的地點</span>
+      <div class="near-me-radius">
+        <button class="radius-btn" data-r="500">500m</button>
+        <button class="radius-btn active" data-r="1000">1km</button>
+        <button class="radius-btn" data-r="2000">2km</button>
+      </div>
+      <span class="near-me-close" onclick="closeNearMe()">✕</span>
+    </div>
+    <div id="nearMeList"></div>
+  </div>
+</div>
+<div class="filters" id="filters"></div>
+
+<div class="count" id="count"></div>
+<div class="grid" id="grid"></div>
+<div class="empty" id="empty" style="display:none;">沒有符合的結果</div>
+
+<footer>資料整理自 Google Maps 清單備註 + 食べログ / 官方網站公開資訊，僅供旅遊參考，實際營業時間請以現場公告為準。</footer>
+
+<script>
+let DATA = [];
+
+const TYPE_LABELS = {food:"美食",teacake:"點心",shop:"購物",sight:"景點",hotel:"住宿"};
+
+// 沒有照片時，依類別給個 fallback emoji（讓卡片不要空一塊）
+const CAT_ICONS = {
+  "咖啡廳":"☕","甜點":"🍰","豬排":"🍱","牛舌":"🥩","燒肉":"🥓","拉麵":"🍜",
+  "海鮮吃到飽":"🦐","交通":"🚉","市場":"🏮","次文化購物中心":"🎮","Outlet":"🛍️",
+  "工作服／空調服":"🧥","商店街":"🏮","藥妝／生活雜貨":"💊","水族館":"🐬",
+  "景點／絕景":"🏞️","神社":"⛩️","公園":"🌳","購物中心":"🛍️","角色主題商店":"🧸",
+  "二手書／二手商品":"📚","住宿":"🏨","寺廟":"🛕","歷史地標":"🏯"
+};
+function fallbackIcon(item){
+  return CAT_ICONS[item.cat] || (item.type==='food'?'🍽️':item.type==='shop'?'🛍️':item.type==='hotel'?'🏨':'📍');
+}
+
+function escapeHTML(s){
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// 點名稱複製到剪貼簿
+function copyText(el){
+  const text = el.dataset.copy || el.textContent;
+  const done = () => showCopyToast('已複製：' + text);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+function fallbackCopy(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch (e) {}
+  document.body.removeChild(ta);
+  cb();
+}
+function showCopyToast(msg){
+  let t = document.getElementById('copyToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'copyToast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._hideTimer);
+  t._hideTimer = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+function renderStars(v){
+  if(!v) return "";
+  return v.toFixed(1);
+}
+
+function mapUrl(item){
+  // 優先用 mapAddr（純門牌，不含大樓名/樓層，才點得準）；沒有就退回 addr；都沒有就用店名+日本
+  const parts = [item.name];
+  if(item.mapAddr) parts.push(item.mapAddr);
+  else if(item.addr) parts.push(item.addr);
+  else parts.push('日本');
+  const q = encodeURIComponent(parts.join(' '));
+  return `https://www.google.com/maps/search/?api=1&query=${q}`;
+}
+
+// ===== 距離計算與附近景點功能 =====
+function haversine(lat1, lng1, lat2, lng2){
+  const R = 6371000; // 地球半徑（公尺）
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat/2) ** 2 +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function getNearbyOf(item, maxDist = 1000, limit = 8){
+  if(item.lat == null || item.lng == null) return null;
+  return DATA
+    .map((d, idx) => ({ d, idx, dist: (d !== item && d.lat != null && d.lng != null) ? haversine(item.lat, item.lng, d.lat, d.lng) : Infinity }))
+    .filter(x => x.dist <= maxDist)
+    .sort((a, b) => a.dist - b.dist)
+    .slice(0, limit);
+}
+
+function nearbyListItemsHTML(results){
+  return `<ul class="nearby-list-ul">${results.map(r =>
+    `<li onclick="scrollToCard(${r.idx})"><span class="nearby-dist">${Math.round(r.dist)}m</span> ${escapeHTML(r.d.jp || r.d.name)} <span class="nearby-cat">${r.d.cat || ''}</span></li>`
+  ).join('')}</ul>`;
+}
+
+function toggleNearby(btn, idx){
+  const container = document.getElementById('nearby-' + idx);
+  const isOpen = container.classList.toggle('open');
+  btn.textContent = isOpen ? '▲ 收合附近景點' : '📍 查看附近景點（1公里內）';
+  if(isOpen && !container.dataset.loaded){
+    const item = DATA[idx];
+    const nearby = getNearbyOf(item, 1000, 8);
+    if(nearby === null){
+      container.innerHTML = `<div class="nearby-empty">此地點尚無座標資料，無法計算附近景點。</div>`;
+    } else if(!nearby.length){
+      container.innerHTML = `<div class="nearby-empty">1公里內查無其他已收錄地點。</div>`;
+    } else {
+      container.innerHTML = nearbyListItemsHTML(nearby);
+    }
+    container.dataset.loaded = '1';
+  }
+}
+
+function scrollToCard(idx){
+  document.getElementById('search').value = '';
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  const allBtn = document.querySelector('.filter-btn[data-type="all"]');
+  if(allBtn) allBtn.classList.add('active');
+  render();
+  requestAnimationFrame(() => {
+    const el = document.getElementById('card-' + idx);
+    if(el){
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('flash');
+      setTimeout(() => el.classList.remove('flash'), 1400);
+    }
+  });
+}
+
+// ===== 「我在這附近」（使用者GPS定位）=====
+let userCoords = null;
+
+function currentRadius(){
+  const active = document.querySelector('.radius-btn.active');
+  return active ? parseInt(active.dataset.r, 10) : 1000;
+}
+
+function findNearMe(){
+  const panel = document.getElementById('nearMePanel');
+  panel.style.display = 'block';
+  const list = document.getElementById('nearMeList');
+  list.innerHTML = `<div class="nearby-empty">定位中，請允許瀏覽器取得您的位置...</div>`;
+  if(!navigator.geolocation){
+    list.innerHTML = `<div class="nearby-empty">此瀏覽器不支援定位功能，請改用手動搜尋。</div>`;
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      renderNearMeList();
+    },
+    err => {
+      let msg = '無法取得您的位置，請再試一次。';
+      if(err.code === 1) msg = '您拒絕了定位權限，請至瀏覽器設定允許定位後再試一次。';
+      else if(err.code === 2) msg = '目前無法判斷您的位置（訊號或裝置問題）。';
+      else if(err.code === 3) msg = '定位逾時，請再試一次。';
+      list.innerHTML = `<div class="nearby-empty">${msg}</div>`;
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+function renderNearMeList(){
+  if(!userCoords) return;
+  const r = currentRadius();
+  const list = document.getElementById('nearMeList');
+  const results = DATA
+    .map((d, idx) => ({ d, idx, dist: (d.lat != null && d.lng != null) ? haversine(userCoords.lat, userCoords.lng, d.lat, d.lng) : Infinity }))
+    .filter(x => x.dist <= r)
+    .sort((a, b) => a.dist - b.dist)
+    .slice(0, 15);
+  if(!results.length){
+    list.innerHTML = `<div class="nearby-empty">${r}公尺內查無收錄地點，試試看擴大範圍。</div>`;
+    return;
+  }
+  list.innerHTML = nearbyListItemsHTML(results);
+}
+
+function closeNearMe(){
+  document.getElementById('nearMePanel').style.display = 'none';
+}
+
+function cardHTML(item){
+  const origIdx = DATA.indexOf(item);
+  const scores = [];
+  if(item.gRating){
+    scores.push(`<div class="score-box"><span>Google評分</span><b>★ ${renderStars(item.gRating)}</b>${item.gReviews? `<span>(${item.gReviews}則)</span>`:''}</div>`);
+  }
+  if(item.tRating){
+    scores.push(`<div class="score-box tabelog"><span>食べログ</span><b>${item.tRating.toFixed(2)}</b>${item.tReviews? `<span>(${item.tReviews}則)</span>`:''}</div>`);
+  }
+  const recHTML = item.rec && item.rec.length ? `
+    <div class="section-label">推薦品項／亮點</div>
+    <ul class="rec">${item.rec.map(r=>`<li>${r}</li>`).join('')}</ul>
+  ` : '';
+  const metaBits = [];
+  if(item.hours) metaBits.push(`⏰ ${item.hours}`);
+  if(item.price) metaBits.push(`💰 ${item.price}`);
+  const metaLine = metaBits.length ? `<div class="meta-line">${metaBits.join(' ・ ')}</div>` : '';
+  const addrLine = (item.addr || item.access) ? `<div class="addr">📍 ${item.addr||''}${item.access? ' ・ '+item.access:''}</div>` : '';
+  const incompleteBadge = item.incomplete ? `<span class="badge-nodata">資料有限</span>` : '';
+
+  const thumbHTML = item.img
+    ? `<img class="thumb" src="${item.img}" alt="${item.name}" loading="lazy" onerror="this.outerHTML='<div class=&quot;thumb-fallback&quot;>${fallbackIcon(item)}</div>';">`
+    : `<div class="thumb-fallback">${fallbackIcon(item)}</div>`;
+
+  // 標題：日文為主（大標），另一個名稱當小標；沒有另外的日文名就只顯示一行
+  const mainTitle = item.jp || item.name;
+  const subTitle = item.jp ? item.name : null;
+
+  return `
+  <div class="card" id="card-${origIdx}" data-name="${(item.name+' '+(item.jp||'')+' '+(item.cat||'')).toLowerCase()}" data-type="${item.type}">
+    <div class="card-top">
+      <div class="card-main">
+        ${thumbHTML}
+        <div class="card-title-wrap">
+          <h2><span class="copyable" data-copy="${escapeHTML(mainTitle)}" onclick="copyText(this)">${escapeHTML(mainTitle)}</span> <span class="copy-ic">⧉</span> ${incompleteBadge}</h2>
+          ${subTitle? `<div class="meta-line"><span class="copyable" data-copy="${escapeHTML(subTitle)}" onclick="copyText(this)">${escapeHTML(subTitle)}</span></div>`:''}
+        </div>
+      </div>
+      <a class="map-link" href="${mapUrl(item)}" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="tags"><span class="tag">${TYPE_LABELS[item.type]||''}</span><span class="tag">${item.cat||''}</span></div>
+    ${scores.length? `<div class="scores">${scores.join('')}</div>` : ''}
+    ${metaLine}
+    ${addrLine}
+    <div class="toggle-btn" onclick="this.nextElementSibling.classList.toggle('open'); this.textContent = this.textContent.startsWith('▼')?'▲ 收合':'▼ 展開詳細介紹 · 📍附近景點';">▼ 展開詳細介紹 · 📍附近景點</div>
+    <div class="details">
+      ${recHTML}
+      ${item.notes? `<div class="section-label">評論觀察／備註</div><div class="notes">${item.notes}</div>` : ''}
+      <div class="toggle-btn nearby-toggle" onclick="toggleNearby(this, ${origIdx})">📍 查看附近景點（1公里內）</div>
+      <div class="nearby-list-wrap" id="nearby-${origIdx}"></div>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const activeType = document.querySelector('.filter-btn.active')?.dataset.type || 'all';
+  const grid = document.getElementById('grid');
+  const filtered = DATA.filter(item=>{
+    const matchesType = activeType==='all' || item.type===activeType;
+    const haystack = (item.name+' '+(item.jp||'')+' '+(item.cat||'')+' '+(item.notes||'')+' '+(item.rec||[]).join(' ')).toLowerCase();
+    const matchesQ = !q || haystack.includes(q);
+    return matchesType && matchesQ;
+  });
+  grid.innerHTML = filtered.map(cardHTML).join('');
+  document.getElementById('count').textContent = `顯示 ${filtered.length} / ${DATA.length} 個地點`;
+  document.getElementById('empty').style.display = filtered.length? 'none':'block';
+}
+
+function buildFilters(){
+  const types = ['all','food','teacake','shop','sight','hotel'].filter(t => t==='all' || DATA.some(d => d.type===t));
+  const labels = {all:'全部',food:'美食',teacake:'點心',shop:'購物',sight:'景點',hotel:'住宿'};
+  const wrap = document.getElementById('filters');
+  wrap.innerHTML = types.map(t=>`<button class="filter-btn ${t==='all'?'active':''}" data-type="${t}">${labels[t]}</button>`).join('');
+  wrap.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      wrap.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    });
+  });
+}
+
+document.getElementById('search').addEventListener('input', render);
+document.querySelectorAll('.radius-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.radius-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderNearMeList();
+  });
+});
+
+// ===== 從 venues.json 載入資料 =====
+async function loadData(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = `<div class="empty">載入清單中...</div>`;
+  try {
+    const res = await fetch('venues.json');
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    DATA = await res.json();
+  } catch(err){
+    grid.innerHTML = `<div class="empty">無法載入 venues.json（${err.message}）。請確認此檔案跟 travel-list.html 放在同一個資料夾／同一個網站目錄下。</div>`;
+    document.getElementById('totalCount').textContent = '0';
+    return;
+  }
+  document.getElementById('totalCount').textContent = DATA.length;
+  buildFilters();
+
+  // 支援網址 ?q=關鍵字，自動帶入搜尋框（例如從行程表連過來直接找到該店家）
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('q');
+  if(q){
+    document.getElementById('search').value = q;
+    // 從行程表點進來的（帶有q參數），顯示返回按鈕
+    // 加到主畫面的App模式沒有分頁/返回鍵，用連結導回travel-plan.html
+    const backWrap = document.getElementById('backToPlan');
+    backWrap.style.display = 'block';
+    backWrap.innerHTML = `<a class="back-to-plan" href="travel-plan.html">← 返回行程表</a>`;
+  }
+  render();
+}
+loadData();
+</script>
+</body>
+</html>
