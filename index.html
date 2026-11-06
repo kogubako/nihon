@@ -176,6 +176,10 @@
   }
   .more-item.active-page .more-label { color: var(--pink-dark); }
 </style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#e8849a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="日本工具箱">
 </head>
 <body>
 
@@ -307,6 +311,15 @@
     tabBtns.forEach(btn => {
       if (btn.dataset.idx === 'more') btn.classList.add('active');
       else btn.classList.remove('active');
+    });
+  }
+</script>
+
+<script>
+  // 註冊離線快取（需 https 或 localhost；失敗就當沒有這功能）
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
     });
   }
 </script>
