@@ -373,6 +373,11 @@
             color: var(--text3);
             letter-spacing: 1px;
         }
+            .model-tag {
+            display: inline-block; margin-top: 8px; padding: 3px 10px; border-radius: 99px;
+            font-size: 11px; font-weight: 700;
+            background: var(--tag-claude-bg); color: var(--tag-claude);
+        }
     </style>
 </head>
 <body>
@@ -380,7 +385,8 @@
     <div class="header">
         <div class="header-en">Japan Toolbox</div>
         <h1>發票解析</h1>
-        <div class="header-sub">Gemini · Claude · 日本收據直連版</div>
+        <div class="header-sub">照片 → AI 解析 → 日文收據明細</div>
+        <div class="model-tag" id="modelTag"></div>
     </div>
 
     <!-- API 設定 -->
@@ -391,21 +397,6 @@
         </div>
         <div class="settings-body" id="settingsBody">
             <div class="divider"></div>
-            <div class="field">
-                <label>AI 引擎</label>
-                <select id="engineSelect" onchange="switchEngine(this.value)">
-                    <option value="gemini">Google Gemini</option>
-                    <option value="claude">Anthropic Claude</option>
-                </select>
-            </div>
-            <div class="field">
-                <label>模型</label>
-                <select id="modelSelect"></select>
-            </div>
-            <div class="field">
-                <label>Gemini API Key</label>
-                <input type="password" id="geminiKey" placeholder="AIza...">
-            </div>
             <div class="field">
                 <label>Claude API Key</label>
                 <input type="password" id="claudeKey" placeholder="sk-ant-...">
@@ -443,30 +434,17 @@
 </div>
 
 <script>
+// ★ 換模型只要改這裡（label 會顯示在畫面上）
 const CONFIG = {
-    gemini: {
-        key: 'receipt-gemini-key',
-        models: [
-            {v:'gemini-2.0-flash', l:'Gemini 2.0 Flash'},
-            {v:'gemini-1.5-flash', l:'Gemini 1.5 Flash'}
-        ]
-    },
-    claude: {
-        key: 'receipt-claude-key',
-        models: [
-            {v:'claude-sonnet-4-5', l:'Claude Sonnet 4.5'},
-            {v:'claude-haiku-4-5-20251001', l:'Claude Haiku 4.5'}
-        ]
-    }
+    claude: { key: 'receipt-claude-key', model: 'claude-opus-5-5', label: 'Claude Opus 5.5' }
 };
 
 const HIS_KEY = 'invoice_history_v2';
 let base64Image = '', imageMime = 'image/jpeg', invoiceHistory = [];
 
 (function init() {
-    const engine = localStorage.getItem('receipt-engine') || 'gemini';
-    document.getElementById('engineSelect').value = engine;
-    switchEngine(engine, true);
+    document.getElementById('modelTag').textContent = '🤖 ' + CONFIG.claude.label + '（' + CONFIG.claude.model + '）';
+    document.getElementById('claudeKey').value = localStorage.getItem(CONFIG.claude.key) || '';
     try { invoiceHistory = JSON.parse(localStorage.getItem(HIS_KEY)) || []; } catch(e){}
     renderHistory();
 })();
@@ -478,20 +456,8 @@ function toggleSettings() {
     arrow.classList.toggle('open');
 }
 
-function switchEngine(engine, silent) {
-    const cfg = CONFIG[engine];
-    const sel = document.getElementById('modelSelect');
-    sel.innerHTML = cfg.models.map(m => `<option value="${m.v}">${m.l}</option>`).join('');
-    document.getElementById('geminiKey').value = localStorage.getItem(CONFIG.gemini.key) || '';
-    document.getElementById('claudeKey').value = localStorage.getItem(CONFIG.claude.key) || '';
-    if (!silent) localStorage.setItem('receipt-engine', engine);
-}
-
 function saveSettings() {
-    localStorage.setItem(CONFIG.gemini.key, document.getElementById('geminiKey').value.trim());
     localStorage.setItem(CONFIG.claude.key, document.getElementById('claudeKey').value.trim());
-    localStorage.setItem('receipt-engine', document.getElementById('engineSelect').value);
-    localStorage.setItem('receipt-model-' + document.getElementById('engineSelect').value, document.getElementById('modelSelect').value);
     alert('設定已儲存');
     toggleSettings();
 }
@@ -538,10 +504,10 @@ function onFileChange(e) {
 }
 
 async function analyze() {
-    const engine = document.getElementById('engineSelect').value;
-    const model = document.getElementById('modelSelect').value;
-    const key = localStorage.getItem(CONFIG[engine].key);
-    if (!key) { alert('請先設定 API Key'); toggleSettings(); return; }
+    const key = localStorage.getItem(CONFIG.claude.key);
+    if (!key) { alert('請先設定 Claude API Key'); toggleSettings(); return; }
+    const engine = 'claude';
+    const model = CONFIG.claude.model;
 
     document.getElementById('loadingCard').classList.add('show');
     const statusEl = document.getElementById('statusText');
@@ -565,16 +531,7 @@ const prompt = `你是日本收據專業解析員。仔細觀察圖片中的收�
 
     try {
         let rawText = '';
-        if (engine === 'gemini') {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: imageMime, data: base64Image } }] }] })
-            });
-            const d = await res.json();
-            if (!res.ok || d.error) throw new Error(d.error?.message || `HTTP ${res.status}`);
-            rawText = d.candidates[0].content.parts[0].text;
-        } else {
+        {
             const res = await fetch('https://api.anthropic.com/v1/messages', {
                 method: 'POST',
                 headers: {
@@ -585,7 +542,7 @@ const prompt = `你是日本收據專業解析員。仔細觀察圖片中的收�
                 },
                 body: JSON.stringify({
                     model,
-                    max_tokens: 1500,
+                    max_tokens: 4000,
                     system: "You are a specialized JSON parser. Output only the raw JSON array. No preamble, no markdown blocks.",
                     messages: [{ role: 'user', content: [
                         { type: 'image', source: { type: 'base64', media_type: imageMime, data: base64Image } },
@@ -595,7 +552,15 @@ const prompt = `你是日本收據專業解析員。仔細觀察圖片中的收�
             });
             const d = await res.json();
             if (!res.ok || d.error) throw new Error(JSON.stringify(d.error) || `HTTP ${res.status}`);
-            rawText = d.content[0].text;
+            // 新模型可能先回 thinking block，要找 type 為 text 的那個
+            const block = (d.content || []).find(b => b.type === 'text');
+            if (!block || typeof block.text !== 'string') {
+                if (d.stop_reason === 'refusal') {
+                    throw new Error('Claude 因安全機制拒絕解析這張圖（常見於收據上有卡號、IC卡餘額等看起來像支付卡資訊的內容）。試試拍照時裁掉下半部卡號/IC卡資訊區塊，只留商品明細');
+                }
+                throw new Error('Claude 未回傳有效文字內容，請重試');
+            }
+            rawText = block.text;
         }
 
         const jsonMatch = rawText.match(/\[[\s\S]*\]/);
@@ -621,7 +586,7 @@ function renderHistory() {
         <div class="invoice-card">
             <div class="invoice-meta">
                 <span class="invoice-time">${new Date(rec.timestamp).toLocaleString('zh-TW')}</span>
-                <span class="inv-badge ${rec.engine}">${rec.engine}</span>
+                <span class="inv-badge ${rec.engine}">${rec.model || rec.engine}</span>
             </div>
             <div class="table-wrap">
                 <table>
