@@ -188,32 +188,25 @@
 <div class="iframe-wrap">
   <iframe id="frame-0" src="travel-plan.html"></iframe>
   <iframe id="frame-1" src="travel-list.html"></iframe>
-  <iframe id="frame-2" src="chiikawa-gw.html"></iframe>
-  <iframe id="frame-3" src="receipt.html"></iframe>
-  <iframe id="frame-4" src="product-check.html"></iframe>
-  <iframe id="frame-5" src="coupon.html"></iframe>
-  <iframe id="frame-6" src="anime-events.html"></iframe>
-  <iframe id="frame-7" src="creditcard.html"></iframe>
-  <iframe id="frame-8" src="jpyrate.html"></iframe>
-  <iframe id="frame-9" src="kakeibo2.html"></iframe>
-  <iframe id="frame-10" src="proxylist.html"></iframe>
+  <iframe id="frame-2" src="receipt.html"></iframe>
+  <iframe id="frame-3" src="product-check.html"></iframe>
+  <iframe id="frame-4" src="coupon.html"></iframe>
+  <iframe id="frame-5" src="creditcard.html"></iframe>
+  <iframe id="frame-6" src="jpyrate.html"></iframe>
+  <iframe id="frame-7" src="kakeibo2.html"></iframe>
 </div>
 
 <!-- Tab Bar（5個主要） -->
 <nav class="tab-bar">
-  <button class="tab-btn" data-idx="2" onclick="switchTab(2)">
-    <span class="icon">🛒</span>
-    <span class="label">吉伊卡哇</span>
-  </button>
-  <button class="tab-btn" data-idx="8" onclick="switchTab(8)">
+  <button class="tab-btn" data-idx="6" onclick="switchTab(6)">
     <span class="icon">💱</span>
     <span class="label">匯率</span>
   </button>
-  <button class="tab-btn" data-idx="9" onclick="switchTab(9)">
+  <button class="tab-btn" data-idx="7" onclick="switchTab(7)">
     <span class="icon">💴</span>
     <span class="label">記帳</span>
   </button>
-  <button class="tab-btn" data-idx="3" onclick="switchTab(3)">
+  <button class="tab-btn" data-idx="2" onclick="switchTab(2)">
     <span class="icon">🧾</span>
     <span class="label">發票掃描</span>
   </button>
@@ -236,39 +229,31 @@
         <span class="more-icon">📍</span>
         <span class="more-label">地點清單</span>
       </div>
-      <div class="more-item" data-idx="5" onclick="switchTabFromMore(5)">
+      <div class="more-item" data-idx="4" onclick="switchTabFromMore(4)">
         <span class="more-icon">🎫</span>
         <span class="more-label">優惠券</span>
       </div>
-      <div class="more-item" data-idx="7" onclick="switchTabFromMore(7)">
+      <div class="more-item" data-idx="5" onclick="switchTabFromMore(5)">
         <span class="more-icon">💳</span>
         <span class="more-label">卡片優惠</span>
       </div>
-      <div class="more-item" data-idx="6" onclick="switchTabFromMore(6)">
-        <span class="more-icon">🎌</span>
-        <span class="more-label">動漫活動</span>
-      </div>
-      <div class="more-item" data-idx="4" onclick="switchTabFromMore(4)">
+      <div class="more-item" data-idx="3" onclick="switchTabFromMore(3)">
         <span class="more-icon">🔍</span>
         <span class="more-label">查價</span>
-      </div>
-      <div class="more-item" data-idx="10" onclick="switchTabFromMore(10)">
-        <span class="more-icon">🎁</span>
-        <span class="more-label">代購</span>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  const LAST_TAB_KEY = 'japan-toolbox-tab-v2';
+  const LAST_TAB_KEY = 'japan-toolbox-tab-v3';
   let current = parseInt(localStorage.getItem(LAST_TAB_KEY) || '0');
 
   const frames = document.querySelectorAll('.iframe-wrap iframe');
   const tabBtns = document.querySelectorAll('.tab-bar .tab-btn');
 
   // 主要 tab 對應的 frame index
-  const mainTabs = [2, 8, 4, 3]; // 採購、匯率、查價、發票
+  const mainTabs = [6, 3, 2]; // 匯率、查價、發票
 
   function switchTab(idx) {
     // 切換 iframe
