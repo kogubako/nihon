@@ -224,6 +224,10 @@
     flex: 1; border-radius: 12px; padding: 12px 14px;
     text-align: center; position: relative;
   }
+  .model-tag {
+    display: inline-block; margin-top: 8px; padding: 3px 10px; border-radius: 99px;
+    font-size: 11px; font-weight: 700; background: #ede9fe; color: #6d28d9;
+  }
   .price-box.jp { background: #fff0f8; border: 1.5px solid var(--pink); }
   .price-box.tw { background: #f0fff8; border: 1.5px solid var(--mint); }
 
@@ -279,6 +283,7 @@
   <div class="header">
     <h1>💳 商品查價</h1>
     <div class="header-sub">照片 → AI 分析 → 日本・台灣價格</div>
+    <div class="model-tag" id="modelTag"></div>
   </div>
 
   <!-- Settings Card -->
@@ -288,10 +293,6 @@
       <span class="settings-arrow">▴</span>
     </div>
     <div class="settings-body">
-      <div class="field">
-        <label>Gemini API Key</label>
-        <input type="password" id="geminiKey" placeholder="sk-...">
-      </div>
       <div class="field">
         <label>Claude API Key</label>
         <input type="password" id="claudeKey" placeholder="sk-ant-...">
@@ -333,6 +334,10 @@
 <script>
   const HIS_KEY = 'product_history_v2';
   let productHistory = [];
+  // ★ 換模型只要改這裡（label 會顯示在畫面上）
+  const CLAUDE_MODEL = 'claude-sonnet-5-5';
+  const CLAUDE_LABEL = 'Claude Sonnet 5.5';
+
   let base64Image = '';
   let imageMime = 'image/jpeg';
 
@@ -340,10 +345,9 @@
     const saved = localStorage.getItem(HIS_KEY);
     if (saved) productHistory = JSON.parse(saved);
     
-    const geminiKey = localStorage.getItem('product-gemini-key') || '';
     const claudeKey = localStorage.getItem('product-claude-key') || '';
-    document.getElementById('geminiKey').value = geminiKey;
     document.getElementById('claudeKey').value = claudeKey;
+    document.getElementById('modelTag').textContent = '🤖 ' + CLAUDE_LABEL + '（' + CLAUDE_MODEL + '）';
     
     renderHistory();
   }
@@ -356,13 +360,11 @@
   }
 
   function saveSettings() {
-    const geminiKey = document.getElementById('geminiKey').value.trim();
     const claudeKey = document.getElementById('claudeKey').value.trim();
-    if (!geminiKey && !claudeKey) { 
-      showApiStatus('⚠️ 請至少輸入一個 API Key', 'err'); 
+    if (!claudeKey) { 
+      showApiStatus('⚠️ 請輸入 Claude API Key', 'err'); 
       return; 
     }
-    localStorage.setItem('product-gemini-key', geminiKey);
     localStorage.setItem('product-claude-key', claudeKey);
     showApiStatus('✅ 設定已儲存！', 'ok');
   }
@@ -460,11 +462,10 @@
   }
 
   async function analyze() {
-    const geminiKey = localStorage.getItem('product-gemini-key') || '';
     const claudeKey = localStorage.getItem('product-claude-key') || '';
 
-    if (!geminiKey && !claudeKey) { 
-      setStatus('⚠️ 請先在設定中填入 API Key', 'err'); 
+    if (!claudeKey) { 
+      setStatus('⚠️ 請先在設定中填入 Claude API Key', 'err'); 
       toggleSettings(); 
       return; 
     }
@@ -486,30 +487,8 @@
 
     try {
       let parsedData;
-      let engine = 'gemini';
-
-      if (geminiKey) {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [
-              { text: prompt },
-              { inline_data: { mime_type: imageMime, data: base64Image } }
-            ]}]
-          })
-        });
-        const data = await res.json();
-        if (data.error) {
-          if (data.error.message.includes('quota') || data.error.message.includes('RESOURCE_EXHAUSTED')) {
-            throw new Error('🔴 Gemini 配額已滿，試試用 Claude');
-          }
-          throw new Error(data.error.message);
-        }
-        let raw = data.candidates[0].content.parts[0].text;
-        parsedData = JSON.parse(raw.replace(/```json|```/g, '').trim());
-      } else if (claudeKey) {
-        engine = 'claude';
+      const engine = 'claude';
+      {
         const res = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: {
@@ -519,8 +498,8 @@
             'anthropic-dangerous-direct-browser-access': 'true'
           },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 1500,
+            model: CLAUDE_MODEL,
+            max_tokens: 4000,
             messages: [{ role: 'user', content: [
               { type: 'image', source: { type: 'base64', media_type: imageMime, data: base64Image } },
               { type: 'text', text: prompt }
@@ -529,7 +508,10 @@
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error.message);
-        let raw = data.content[0].text;
+        // 新模型可能先回 thinking block，要找 type 為 text 的那個
+        const textBlock = (data.content || []).find(b => b.type === 'text');
+        if (!textBlock) throw new Error('Claude 未回傳有效文字內容，請重試');
+        let raw = textBlock.text;
         parsedData = JSON.parse(raw.replace(/```json|```/g, '').trim());
       }
 
@@ -540,7 +522,7 @@
       const record = {
         timestamp: Date.now(),
         engine,
-        model: engine === 'gemini' ? 'gemini-2.0-flash' : 'claude-sonnet-4-20250514',
+        model: CLAUDE_MODEL,
         data: { ...parsedData, jp_equiv: jpEquiv }
       };
 
@@ -582,7 +564,7 @@
         <div class="result-header">
           <div>
             <div class="result-meta">🕐 ${timeStr}</div>
-            <div class="result-badge ${badgeClass}">${record.engine === 'gemini' ? '🔵 Gemini' : '🟣 Claude'}</div>
+            <div class="result-badge ${badgeClass}">${record.engine === 'gemini' ? '🔵 ' : '🟣 '}${record.model || record.engine}</div>
           </div>
           <button class="del-btn" onclick="deleteRecord(${index})">✕ 刪除</button>
         </div>
